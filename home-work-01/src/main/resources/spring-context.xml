@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id='inputOutputService' class="ru.iashinme.service.InputOutputServiceImpl"/>
+
+    <bean id='questionDao' class="ru.iashinme.dao.QuestionDaoImpl">
+        <constructor-arg name="resourceName" value="answer-question.csv"/>
+    </bean>
+
+    <bean id='questionService' class="ru.iashinme.service.QuestionServiceImpl">
+        <constructor-arg name="questionDao" ref="questionDao"/>
+        <constructor-arg name="inputOutputService" ref="inputOutputService"/>
+    </bean>
+
+</beans>
