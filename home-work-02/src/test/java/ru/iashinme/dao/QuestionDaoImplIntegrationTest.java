@@ -1,5 +1,6 @@
 package ru.iashinme.dao;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import ru.iashinme.Main;
@@ -8,10 +9,12 @@ import ru.iashinme.domain.Question;
 import java.util.List;
 import static org.assertj.core.api.Assertions.*;
 
+@DisplayName("Integration test. Class QuestionDaoImpl")
 public class QuestionDaoImplIntegrationTest {
 
     @Test
-    public void test() {
+    @DisplayName("should have correct reading CSV file")
+    public void shouldHaveCorrectReadingCsvFile() {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Main.class);
         QuestionDao questionDao = context.getBean(QuestionDao.class);
         List<Question> questionList = questionDao.findAll();
