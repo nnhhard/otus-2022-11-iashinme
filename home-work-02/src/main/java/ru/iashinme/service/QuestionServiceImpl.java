@@ -3,7 +3,9 @@ package ru.iashinme.service;
 import org.springframework.stereotype.Service;
 import ru.iashinme.dao.QuestionDao;
 import ru.iashinme.domain.Question;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class QuestionServiceImpl implements QuestionService {
@@ -21,19 +23,20 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Override
-    public void printQuestionList() {
-        try {
-            getQuestionList().forEach(question -> inputOutputService.printMessage(
-                    answerQuestionConverter.questionAnswerToStringWithCorrectAnswer(question))
-            );
-
-        } catch (RuntimeException e) {
-            inputOutputService.printMessage(e.getMessage());
-        }
+    public List<String> getQuestionStringList() {
+        return getQuestionList()
+                .stream()
+                .map(answerQuestionConverter::questionAnswerToStringWithCorrectAnswer).collect(Collectors.toList());
     }
 
     @Override
     public List<Question> getQuestionList() {
-        return questionDao.findAll();
+        List<Question> questionList = null;
+        try {
+            questionList = questionDao.findAll();
+        } catch (RuntimeException e) {
+            inputOutputService.printMessage(e.getMessage());
+        }
+        return questionList;
     }
 }

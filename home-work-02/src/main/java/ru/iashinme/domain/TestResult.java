@@ -3,11 +3,11 @@ package ru.iashinme.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AnswerStudent {
+public class TestResult {
     private Student student;
     private final List<Answer> studentAnswersList;
 
-    public AnswerStudent(Student student) {
+    public TestResult(Student student) {
         this.student = student;
         studentAnswersList = new ArrayList<>();
     }
@@ -30,5 +30,12 @@ public class AnswerStudent {
 
     public List<Answer> getStudentAnswersList() {
         return studentAnswersList;
+    }
+
+    public int getNumberRightAnswerStudent() {
+        return (int) studentAnswersList
+                .stream()
+                .filter(Answer::isCorrect)
+                .count();
     }
 }

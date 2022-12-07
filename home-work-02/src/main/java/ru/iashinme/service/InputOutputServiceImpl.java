@@ -2,7 +2,6 @@ package ru.iashinme.service;
 
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.Scanner;
 
 @Service
@@ -17,5 +16,11 @@ public class InputOutputServiceImpl implements InputOutputService {
     public String readLine(){
         Scanner in = new Scanner(System.in);
         return in.nextLine();
+    }
+
+    @Override
+    public int readInt(){
+        Scanner in = new Scanner(System.in);
+        return in.nextInt();
     }
 }

@@ -23,14 +23,8 @@ public class QuestionServiceImplTest {
     @Mock
     private AnswerQuestionConverter answerQuestionConverterMock;
 
-    @Mock
-    private InputOutputService inputOutputServiceMock;
-
     @InjectMocks
     private QuestionServiceImpl questionService;
-
-    @Captor
-    private ArgumentCaptor<String> parametersInThePrintMessage;
 
     @Test
     @DisplayName("should have correct print string")
@@ -44,11 +38,9 @@ public class QuestionServiceImplTest {
                     .thenReturn(key);
         }
 
-        questionService.printQuestionList();
+        List<String> questionStringList = questionService.getQuestionStringList();
 
-        verify(inputOutputServiceMock, times(mapStringQuestion.size())).printMessage(parametersInThePrintMessage.capture());
-        assertThat(parametersInThePrintMessage.getAllValues())
-                .hasSize(mapStringQuestion.size())
+        assertThat(questionStringList).hasSize(mapStringQuestion.size())
                 .isEqualTo(new ArrayList<>(mapStringQuestion.keySet()));
     }
 

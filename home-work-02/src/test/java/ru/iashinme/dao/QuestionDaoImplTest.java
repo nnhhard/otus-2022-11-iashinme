@@ -2,20 +2,35 @@ package ru.iashinme.dao;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import ru.iashinme.config.AppSettingCsvPathProvider;
 import ru.iashinme.domain.Answer;
 import ru.iashinme.domain.Question;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 @DisplayName("Class QuestionDaoImpl")
+@ExtendWith(MockitoExtension.class)
 public class QuestionDaoImplTest {
+
+    @Mock
+    private AppSettingCsvPathProvider appSettingCsvPathProviderMock;
+
+    @InjectMocks
+    private QuestionDaoImpl questionDaoImpl;
 
     @Test
     @DisplayName("should have correct exception for reading CSV file")
     public void shouldHaveCorrectExceptionForReadingCsvFile() {
-        QuestionDaoImpl questionDao = new QuestionDaoImpl("answer-question-test1.csv");
+        when(appSettingCsvPathProviderMock.getResourceName()).thenReturn("answer-question-test1.csv");
+
         assertThatThrownBy(() -> {
-            List<Question> questionList = questionDao.findAll();
+            questionDaoImpl.findAll();
         }).isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("Exception reading CSV file!");
     }
@@ -23,17 +38,17 @@ public class QuestionDaoImplTest {
     @Test
     @DisplayName("should have correct reading empty CSV file")
     public void shouldHaveCorrectReadingEmptyCsvFile() {
-        QuestionDaoImpl questionDao = new QuestionDaoImpl("answer-question-test-empty.csv");
-        assertThat(questionDao.findAll().size()).isEqualTo(0);
+        when(appSettingCsvPathProviderMock.getResourceName()).thenReturn("answer-question-test-empty.csv");
+        assertThat(questionDaoImpl.findAll().size()).isEqualTo(0);
     }
 
     @Test
     @DisplayName("should have correct reading not empty CSV file")
     public void shouldHaveCorrectReadingNotEmptyCsvFile() {
         List<Question> questionListExpected = getQuestionListWithTestData();
+        when(appSettingCsvPathProviderMock.getResourceName()).thenReturn("answer-question-test.csv");
 
-        QuestionDaoImpl questionDao = new QuestionDaoImpl("answer-question-test.csv");
-        List<Question> questionListActual = questionDao.findAll();
+        List<Question> questionListActual = questionDaoImpl.findAll();
 
         assertThat(questionListActual).hasSize(questionListExpected.size());
 

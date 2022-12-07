@@ -1,67 +1,63 @@
 package ru.iashinme.service;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import ru.iashinme.domain.AnswerStudent;
+import ru.iashinme.config.AppSettingTestingParamProvider;
 import ru.iashinme.domain.Question;
+import ru.iashinme.domain.Student;
+import ru.iashinme.domain.TestResult;
 
 @Service
 public class TestingStudentServiceImpl implements TestingStudentService {
 
-    private final Integer numberOfCorrectAnswersForTest;
-    private final String formatMessageResultTest;
-    private final String messageSuccessfullyPassedTest;
-    private final String messageFailTest ;
     private final QuestionServiceImpl questionService;
     private final InputOutputService inputOutputService;
-    private final AnswerStudentService answerStudentService;
+    private final StudentService studentService;
     private final AnswerQuestionConverterImpl answerQuestionConverter;
+    private final AppSettingTestingParamProvider appSettingTestingParamProvider;
 
     public TestingStudentServiceImpl(
-            @Value("${number-of-correct-answers-for-test}") Integer numberOfCorrectAnswersForTest,
-            @Value("${format-message-result-test}") String formatMessageResultTest,
-            @Value("${message-fail-test") String messageFailTest,
-            @Value("${message-successfully-passed-test}") String messageSuccessfullyPassedTest,
             QuestionServiceImpl questionService,
             InputOutputService inputOutputService,
-            AnswerStudentService answerStudentService,
-            AnswerQuestionConverterImpl answerQuestionConverter) {
+            StudentService studentService,
+            AnswerQuestionConverterImpl answerQuestionConverter,
+            AppSettingTestingParamProvider appSettingTestingParamProvider
+    ) {
         this.questionService = questionService;
         this.inputOutputService = inputOutputService;
-        this.answerStudentService = answerStudentService;
-        this.numberOfCorrectAnswersForTest = numberOfCorrectAnswersForTest;
+        this.studentService = studentService;
         this.answerQuestionConverter = answerQuestionConverter;
-        this.formatMessageResultTest = formatMessageResultTest;
-        this.messageFailTest = messageFailTest;
-        this.messageSuccessfullyPassedTest = messageSuccessfullyPassedTest;
+        this.appSettingTestingParamProvider = appSettingTestingParamProvider;
     }
 
     @Override
     public void testingStudentRun() {
         inputOutputService.printMessage("Testing student:");
 
-        AnswerStudent answerStudent = answerStudentService.registerStudent();
-        enterAnswersStudent(answerStudent);
-        printResultTest(answerStudent);
+        Student student = studentService.registerStudent();
+        TestResult testResultStudent = executeTestFor(student);
+        printResultTest(testResultStudent);
 
         inputOutputService.printMessage("Question with right answers check:");
-        questionService.printQuestionList();
+        questionService.getQuestionStringList().forEach(inputOutputService::printMessage);
     }
 
-    private void enterAnswersStudent(AnswerStudent answerStudent) {
+    private TestResult executeTestFor(Student student) {
+        TestResult testResult = new TestResult(student);
         questionService.getQuestionList().forEach(
-                question -> printQuestionWithAnswerOptionsForEnterAnswerStudent(answerStudent, question)
+                question -> printQuestionWithAnswerOptionsForEnterAnswerStudent(testResult, question)
         );
+
+        return testResult;
     }
 
-    private void printQuestionWithAnswerOptionsForEnterAnswerStudent(AnswerStudent answerStudent, Question question) {
+    private void printQuestionWithAnswerOptionsForEnterAnswerStudent(TestResult testResult, Question question) {
         inputOutputService.printMessage("Enter number right answer:\n"
                 + answerQuestionConverter.questionAnswerToStringWithAnswerIndex(question));
 
         while (true) {
             try {
-                int answerNumber = Integer.parseInt(inputOutputService.readLine());
-                answerStudent.addAnswer(question.getAnswers().get(answerNumber));
+                int answerNumber = inputOutputService.readInt();
+                testResult.addAnswer(question.getAnswers().get(answerNumber));
                 break;
             } catch (Exception e) {
                 inputOutputService.printMessage("Error entering the answer, " +
@@ -70,16 +66,16 @@ public class TestingStudentServiceImpl implements TestingStudentService {
         }
     }
 
-    private void printResultTest(AnswerStudent answerStudent) {
-        int numberRightAnswer = answerStudentService.getNumberRightAnswerStudent(answerStudent);
+    private void printResultTest(TestResult testResult) {
+        int numberRightAnswer = testResult.getNumberRightAnswerStudent();
         String messageResult =
-                numberRightAnswer >= numberOfCorrectAnswersForTest
-                        ? messageSuccessfullyPassedTest
-                        : messageFailTest;
+                numberRightAnswer >= appSettingTestingParamProvider.getNumberOfCorrectAnswersForTest()
+                        ? appSettingTestingParamProvider.getMessageSuccessfullyPassedTest()
+                        : appSettingTestingParamProvider.getMessageFailTest();
 
-        inputOutputService.printMessage(String.format(formatMessageResultTest,
-                answerStudent.getStudent().getSurname(),
-                answerStudent.getStudent().getName(),
+        inputOutputService.printMessage(String.format(appSettingTestingParamProvider.getFormatMessageResultTest(),
+                testResult.getStudent().getSurname(),
+                testResult.getStudent().getName(),
                 messageResult,
                 numberRightAnswer
         ));

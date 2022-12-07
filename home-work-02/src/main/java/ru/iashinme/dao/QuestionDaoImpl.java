@@ -3,6 +3,7 @@ package ru.iashinme.dao;
 import com.opencsv.CSVReader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import ru.iashinme.config.AppSettingCsvPathProvider;
 import ru.iashinme.domain.Answer;
 import ru.iashinme.domain.Question;
 import java.io.*;
@@ -10,14 +11,14 @@ import java.util.*;
 
 @Component
 public class QuestionDaoImpl implements QuestionDao {
-    private final int INDEX_COLUMN_WITH_QUESTION_IN_ROW = 0;
-    private final int INDEX_COLUMN_WITH_ANSWER_AFTER_QUESTION = 0;
-    private final int INDEX_COLUMN_WITH_ANSWER_CORRECT_AFTER_QUESTION = 1;
 
-    private final String resourceName;
+    private final static int INDEX_COLUMN_WITH_QUESTION_IN_ROW = 0;
+    private final static int INDEX_COLUMN_WITH_ANSWER_AFTER_QUESTION = 0;
+    private final static int INDEX_COLUMN_WITH_ANSWER_CORRECT_AFTER_QUESTION = 1;
+    private final AppSettingCsvPathProvider appSettingCsvPathProvider;
 
-    public QuestionDaoImpl(@Value("${csv-file-path}") String resourceName) {
-        this.resourceName = resourceName;
+    public QuestionDaoImpl(AppSettingCsvPathProvider appSettingCsvPathProvider) {
+        this.appSettingCsvPathProvider = appSettingCsvPathProvider;
     }
 
     @Override
@@ -27,6 +28,7 @@ public class QuestionDaoImpl implements QuestionDao {
 
     private List<Question> readFileResource() {
         List<Question> questionList = new ArrayList<>();
+        String resourceName = appSettingCsvPathProvider.getResourceName();
         if (resourceName != null) {
             inputStreamToCsv(getInputStreamInFileResource(resourceName))
                     .forEach(rowFileInFile -> {
