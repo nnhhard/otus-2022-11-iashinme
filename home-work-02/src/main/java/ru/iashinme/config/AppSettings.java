@@ -4,16 +4,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AppSettings implements AppSettingTestingParamProvider, AppSettingCsvPathProvider {
+public class AppSettings implements AppSettingTestingParamProvider, AppSettingResourceNameProvider {
 
-    private final Integer numberOfCorrectAnswersForTest;
+    private final int numberOfCorrectAnswersForTest;
     private final String formatMessageResultTest;
     private final String messageSuccessfullyPassedTest;
     private final String messageFailTest;
     private final String resourceName;
 
     public AppSettings(
-            @Value("${number-of-correct-answers-for-test}") Integer numberOfCorrectAnswersForTest,
+            @Value("${number-of-correct-answers-for-test}") int numberOfCorrectAnswersForTest,
             @Value("${format-message-result-test}") String formatMessageResultTest,
             @Value("${message-fail-test}") String messageFailTest,
             @Value("${message-successfully-passed-test}") String messageSuccessfullyPassedTest,
@@ -27,7 +27,7 @@ public class AppSettings implements AppSettingTestingParamProvider, AppSettingCs
     }
 
     @Override
-    public Integer getNumberOfCorrectAnswersForTest() {
+    public int getNumberOfCorrectAnswersForTest() {
         return numberOfCorrectAnswersForTest;
     }
 

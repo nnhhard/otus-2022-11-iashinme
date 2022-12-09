@@ -1,5 +1,5 @@
 package ru.iashinme.config;
 
-public interface AppSettingCsvPathProvider {
+public interface AppSettingResourceNameProvider {
     String getResourceName();
 }

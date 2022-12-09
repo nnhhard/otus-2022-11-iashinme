@@ -9,14 +9,14 @@ import ru.iashinme.domain.TestResult;
 @Service
 public class TestingStudentServiceImpl implements TestingStudentService {
 
-    private final QuestionServiceImpl questionService;
+    private final QuestionService questionService;
     private final InputOutputService inputOutputService;
     private final StudentService studentService;
-    private final AnswerQuestionConverterImpl answerQuestionConverter;
+    private final AnswerQuestionConverter answerQuestionConverter;
     private final AppSettingTestingParamProvider appSettingTestingParamProvider;
 
     public TestingStudentServiceImpl(
-            QuestionServiceImpl questionService,
+            QuestionService questionService,
             InputOutputService inputOutputService,
             StudentService studentService,
             AnswerQuestionConverterImpl answerQuestionConverter,
