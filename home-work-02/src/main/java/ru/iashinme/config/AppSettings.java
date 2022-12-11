@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AppSettings implements AppSettingTestingParamProvider, AppSettingResourceNameProvider {
+public class AppSettings implements TestingParamProvider, ResourceNameProvider {
 
     private final int numberOfCorrectAnswersForTest;
     private final String formatMessageResultTest;

@@ -1,5 +1,5 @@
 package ru.iashinme.config;
 
-public interface AppSettingResourceNameProvider {
+public interface ResourceNameProvider {
     String getResourceName();
 }

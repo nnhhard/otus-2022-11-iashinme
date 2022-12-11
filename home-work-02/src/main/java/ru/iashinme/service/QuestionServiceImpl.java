@@ -2,8 +2,10 @@ package ru.iashinme.service;
 
 import org.springframework.stereotype.Service;
 import ru.iashinme.dao.QuestionDao;
+import ru.iashinme.dao.ReadCsvFileException;
 import ru.iashinme.domain.Question;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,9 +36,9 @@ public class QuestionServiceImpl implements QuestionService {
         List<Question> questionList = null;
         try {
             questionList = questionDao.findAll();
-        } catch (RuntimeException e) {
+        } catch (ReadCsvFileException e) {
             inputOutputService.printMessage(e.getMessage());
         }
-        return questionList;
+        return questionList == null ? Collections.emptyList() : questionList;
     }
 }

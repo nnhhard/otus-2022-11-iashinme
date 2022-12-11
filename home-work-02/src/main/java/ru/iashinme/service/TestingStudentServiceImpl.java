@@ -1,10 +1,12 @@
 package ru.iashinme.service;
 
 import org.springframework.stereotype.Service;
-import ru.iashinme.config.AppSettingTestingParamProvider;
+import ru.iashinme.config.TestingParamProvider;
 import ru.iashinme.domain.Question;
 import ru.iashinme.domain.Student;
 import ru.iashinme.domain.TestResult;
+
+import java.util.List;
 
 @Service
 public class TestingStudentServiceImpl implements TestingStudentService {
@@ -13,37 +15,38 @@ public class TestingStudentServiceImpl implements TestingStudentService {
     private final InputOutputService inputOutputService;
     private final StudentService studentService;
     private final AnswerQuestionConverter answerQuestionConverter;
-    private final AppSettingTestingParamProvider appSettingTestingParamProvider;
+    private final TestingParamProvider testingParamProvider;
 
     public TestingStudentServiceImpl(
             QuestionService questionService,
             InputOutputService inputOutputService,
             StudentService studentService,
-            AnswerQuestionConverterImpl answerQuestionConverter,
-            AppSettingTestingParamProvider appSettingTestingParamProvider
+            AnswerQuestionConverter answerQuestionConverter,
+            TestingParamProvider testingParamProvider
     ) {
         this.questionService = questionService;
         this.inputOutputService = inputOutputService;
         this.studentService = studentService;
         this.answerQuestionConverter = answerQuestionConverter;
-        this.appSettingTestingParamProvider = appSettingTestingParamProvider;
+        this.testingParamProvider = testingParamProvider;
     }
 
     @Override
     public void testingStudentRun() {
         inputOutputService.printMessage("Testing student:");
-
         Student student = studentService.registerStudent();
-        TestResult testResultStudent = executeTestFor(student);
-        printResultTest(testResultStudent);
-
-        inputOutputService.printMessage("Question with right answers check:");
-        questionService.getQuestionStringList().forEach(inputOutputService::printMessage);
+        var questions = questionService.getQuestionList();
+        if(!questions.isEmpty()) {
+            TestResult testResultStudent = executeTestFor(student, questions);
+            printResultTest(testResultStudent);
+            inputOutputService.printMessage("Question with right answers check:");
+            questionService.getQuestionStringList().forEach(inputOutputService::printMessage);
+        }
     }
 
-    private TestResult executeTestFor(Student student) {
+    private TestResult executeTestFor(Student student, List<Question> questions) {
         TestResult testResult = new TestResult(student);
-        questionService.getQuestionList().forEach(
+        questions.forEach(
                 question -> printQuestionWithAnswerOptionsForEnterAnswerStudent(testResult, question)
         );
 
@@ -69,11 +72,11 @@ public class TestingStudentServiceImpl implements TestingStudentService {
     private void printResultTest(TestResult testResult) {
         int numberRightAnswer = testResult.getNumberRightAnswerStudent();
         String messageResult =
-                numberRightAnswer >= appSettingTestingParamProvider.getNumberOfCorrectAnswersForTest()
-                        ? appSettingTestingParamProvider.getMessageSuccessfullyPassedTest()
-                        : appSettingTestingParamProvider.getMessageFailTest();
+                numberRightAnswer >= testingParamProvider.getNumberOfCorrectAnswersForTest()
+                        ? testingParamProvider.getMessageSuccessfullyPassedTest()
+                        : testingParamProvider.getMessageFailTest();
 
-        inputOutputService.printMessage(String.format(appSettingTestingParamProvider.getFormatMessageResultTest(),
+        inputOutputService.printMessage(String.format(testingParamProvider.getFormatMessageResultTest(),
                 testResult.getStudent().getSurname(),
                 testResult.getStudent().getName(),
                 messageResult,

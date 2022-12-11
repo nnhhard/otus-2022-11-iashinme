@@ -1,6 +1,6 @@
 package ru.iashinme.config;
 
-public interface AppSettingTestingParamProvider {
+public interface TestingParamProvider {
 
     int getNumberOfCorrectAnswersForTest();
     String getFormatMessageResultTest();

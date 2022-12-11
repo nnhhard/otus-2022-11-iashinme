@@ -32,6 +32,7 @@ public class AnswerQuestionConverterImpl implements AnswerQuestionConverter {
     public String questionAnswerToStringWithAnswerIndex(Question question) {
         List<String> questionAnswerStringWithAnswerIndex = new ArrayList<>();
         questionAnswerStringWithAnswerIndex.add(question.getQuestion());
+
         for (int answerIndex = 0; answerIndex < question.getAnswers().size(); answerIndex++) {
             questionAnswerStringWithAnswerIndex.add((answerIndex) + ". " + question.getAnswers().get(answerIndex).getAnswer());
         }
