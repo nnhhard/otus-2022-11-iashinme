@@ -32,7 +32,7 @@ public class QuestionDaoCsvTest {
         when(resourceNameProviderMock.getResourceName()).thenReturn("answer-question-test1.csv");
 
         assertThatThrownBy(() -> questionDaoCsv.findAll())
-                .isInstanceOf(ReadCsvFileException.class)
+                .isInstanceOf(QuestionsReadingException.class)
                 .hasMessageContaining("Exception reading CSV file!");
     }
 

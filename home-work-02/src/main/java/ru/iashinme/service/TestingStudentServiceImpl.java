@@ -2,10 +2,10 @@ package ru.iashinme.service;
 
 import org.springframework.stereotype.Service;
 import ru.iashinme.config.TestingParamProvider;
+import ru.iashinme.dao.QuestionsReadingException;
 import ru.iashinme.domain.Question;
 import ru.iashinme.domain.Student;
 import ru.iashinme.domain.TestResult;
-
 import java.util.List;
 
 @Service
@@ -14,20 +14,20 @@ public class TestingStudentServiceImpl implements TestingStudentService {
     private final QuestionService questionService;
     private final InputOutputService inputOutputService;
     private final StudentService studentService;
-    private final AnswerQuestionConverter answerQuestionConverter;
+    private final QuestionConverter questionConverter;
     private final TestingParamProvider testingParamProvider;
 
     public TestingStudentServiceImpl(
             QuestionService questionService,
             InputOutputService inputOutputService,
             StudentService studentService,
-            AnswerQuestionConverter answerQuestionConverter,
+            QuestionConverter questionConverter,
             TestingParamProvider testingParamProvider
     ) {
         this.questionService = questionService;
         this.inputOutputService = inputOutputService;
         this.studentService = studentService;
-        this.answerQuestionConverter = answerQuestionConverter;
+        this.questionConverter = questionConverter;
         this.testingParamProvider = testingParamProvider;
     }
 
@@ -35,13 +35,16 @@ public class TestingStudentServiceImpl implements TestingStudentService {
     public void testingStudentRun() {
         inputOutputService.printMessage("Testing student:");
         Student student = studentService.registerStudent();
-        var questions = questionService.getQuestionList();
-        if(!questions.isEmpty()) {
+
+        try {
+            var questions = questionService.getQuestionList();
             TestResult testResultStudent = executeTestFor(student, questions);
             printResultTest(testResultStudent);
-            inputOutputService.printMessage("Question with right answers check:");
-            questionService.getQuestionStringList().forEach(inputOutputService::printMessage);
+            printQuestionsWithRightAnswer(questions);
+        } catch (QuestionsReadingException e) {
+            inputOutputService.printMessage(e.getMessage());
         }
+
     }
 
     private TestResult executeTestFor(Student student, List<Question> questions) {
@@ -55,7 +58,7 @@ public class TestingStudentServiceImpl implements TestingStudentService {
 
     private void printQuestionWithAnswerOptionsForEnterAnswerStudent(TestResult testResult, Question question) {
         inputOutputService.printMessage("Enter number right answer:\n"
-                + answerQuestionConverter.questionAnswerToStringWithAnswerIndex(question));
+                + questionConverter.questionAnswerToStringWithAnswerIndex(question));
 
         while (true) {
             try {
@@ -82,5 +85,12 @@ public class TestingStudentServiceImpl implements TestingStudentService {
                 messageResult,
                 numberRightAnswer
         ));
+    }
+    private void printQuestionsWithRightAnswer(List<Question> questions) {
+        inputOutputService.printMessage("Question with right answers check:");
+        questions
+                .stream()
+                .map(questionConverter::questionAnswerToStringWithCorrectAnswer)
+                .forEach(inputOutputService::printMessage);
     }
 }

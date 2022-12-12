@@ -9,13 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class AnswerQuestionConverterImpl implements AnswerQuestionConverter {
-
-    @Override
-    public String answerWithCorrectToString(Answer answer) {
-        return answer.getAnswer() + "(" + answer.isCorrect() + ")";
-    }
-
+public class QuestionConverterImpl implements QuestionConverter {
     @Override
     public String questionAnswerToStringWithCorrectAnswer(Question question) {
         return String.join(
@@ -23,8 +17,9 @@ public class AnswerQuestionConverterImpl implements AnswerQuestionConverter {
                 "Question:",
                 question.getQuestion(),
                 question.getAnswers().stream()
-                        .map(this::answerWithCorrectToString)
-                        .collect(Collectors.joining(", ", "Answer options: ", ""))
+                        .filter(Answer::isCorrect)
+                        .map(Answer::getAnswer)
+                        .collect(Collectors.joining(", ", "Right answer: ", ""))
         );
     }
 

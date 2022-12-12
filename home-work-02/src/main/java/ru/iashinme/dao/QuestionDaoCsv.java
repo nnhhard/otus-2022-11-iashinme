@@ -41,9 +41,9 @@ public class QuestionDaoCsv implements QuestionDao {
                     .map(this::getQuestionFromString)
                     .collect(Collectors.toList());
         } catch (ArrayIndexOutOfBoundsException e) {
-            throw new ReadCsvFileException(e);
+            throw new QuestionsReadingException(e);
         } catch (NoSuchElementException e) {
-            throw new ReadCsvFileException("Exception reading CSV file!");
+            throw new QuestionsReadingException("Exception reading CSV file!", e);
         }
     }
 
@@ -53,7 +53,7 @@ public class QuestionDaoCsv implements QuestionDao {
             List<Answer> answers = getAnswersListFromString(Arrays.copyOfRange(stringQuestion, 1, stringQuestion.length));
             return new Question(question, answers);
         } catch (ArrayIndexOutOfBoundsException e) {
-            throw new ReadCsvFileException(e);
+            throw new QuestionsReadingException(e);
         }
     }
 
@@ -67,7 +67,7 @@ public class QuestionDaoCsv implements QuestionDao {
                         return new Answer(answerText, isCorrect);
                     }).collect(Collectors.toList());
         } catch (ArrayIndexOutOfBoundsException e) {
-            throw new ReadCsvFileException(e);
+            throw new QuestionsReadingException(e);
         }
     }
 
@@ -75,7 +75,7 @@ public class QuestionDaoCsv implements QuestionDao {
         try (CSVReader reader = new CSVReader(new InputStreamReader(inputStream))) {
             return reader.readAll();
         } catch (Exception e) {
-            throw new ReadCsvFileException(e);
+            throw new QuestionsReadingException(e);
         }
     }
 
