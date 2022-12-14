@@ -10,9 +10,7 @@ import java.util.List;
 public class QuestionServiceImpl implements QuestionService {
     private final QuestionDao questionDao;
 
-    public QuestionServiceImpl(
-            QuestionDao questionDao,
-            QuestionConverter questionConverter) {
+    public QuestionServiceImpl(QuestionDao questionDao) {
         this.questionDao = questionDao;
     }
 
