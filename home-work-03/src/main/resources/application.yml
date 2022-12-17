@@ -1,0 +1,10 @@
+spring:
+  messages:
+    basename: "i18n/appmessages"
+    fallback-to-system-locale: false
+    encoding: "UTF-8"
+
+application:
+  locale: ru_RU
+  csv-file-path: answer-question_${application.locale}.csv
+  number-of-correct-answers-for-test: 3
