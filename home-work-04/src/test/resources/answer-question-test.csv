@@ -1,0 +1,2 @@
+Which of the above is the interface?,List<E>;true,ArrayList<E>;false
+What will the following code output: int a = 5; int b = a + 2; System.out.println(a > b ? a : b);?,5,7;true
