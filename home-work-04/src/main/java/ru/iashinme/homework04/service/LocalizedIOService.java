@@ -1,6 +1,6 @@
 package ru.iashinme.homework04.service;
 
-public interface IOFacadeService {
+public interface LocalizedIOService {
     void printMessage(String message);
     String readLine();
     int readInt();

@@ -3,11 +3,11 @@ package ru.iashinme.homework04.service;
 import org.springframework.stereotype.Service;
 
 @Service
-public class IOFacadeServiceImpl implements IOFacadeService {
+public class LocalizedIOServiceImpl implements LocalizedIOService {
     private final LocalizationService localizationService;
     private final InputOutputService inputOutputService;
 
-    public IOFacadeServiceImpl(LocalizationService localizationService, InputOutputService inputOutputService) {
+    public LocalizedIOServiceImpl(LocalizationService localizationService, InputOutputService inputOutputService) {
         this.localizationService = localizationService;
         this.inputOutputService = inputOutputService;
     }
