@@ -16,13 +16,13 @@ public class GenreServiceImpl implements GenreService {
 
     @Override
     public long createGenre(String genreName) {
-        Genre genre = getValidateGenre(0, genreName);
+        Genre genre = getValidatedGenre(0, genreName);
         return genreDao.insert(genre);
     }
 
     @Override
     public int updateGenre(long id, String genreName) {
-        Genre genre = getValidateGenre(id, genreName);
+        Genre genre = getValidatedGenre(id, genreName);
         return genreDao.update(genre);
     }
 
@@ -46,7 +46,7 @@ public class GenreServiceImpl implements GenreService {
         return genreDao.deleteById(id);
     }
 
-    private Genre getValidateGenre(long id, String genreName) {
+    private Genre getValidatedGenre(long id, String genreName) {
         if(StringUtils.isBlank(genreName))
             throw new ValidateException("Genre name is null or empty!");
         return new Genre(id, genreName);

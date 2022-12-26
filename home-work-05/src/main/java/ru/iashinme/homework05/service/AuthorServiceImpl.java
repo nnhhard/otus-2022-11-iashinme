@@ -22,13 +22,13 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public long createAuthor(String authorSurname, String authorName, String authorPatronymic) {
-        Author author = getValidateAuthor(0, authorSurname, authorName, authorPatronymic);
+        Author author = getValidatedAuthor(0, authorSurname, authorName, authorPatronymic);
         return authorDao.insert(author);
     }
 
     @Override
     public int updateAuthor(long id, String authorSurname, String authorName, String authorPatronymic) {
-        Author author = getValidateAuthor(id, authorSurname, authorName, authorPatronymic);
+        Author author = getValidatedAuthor(id, authorSurname, authorName, authorPatronymic);
         return authorDao.update(author);
     }
 
@@ -47,7 +47,7 @@ public class AuthorServiceImpl implements AuthorService {
         return authorDao.deleteById(id);
     }
 
-    private Author getValidateAuthor(long id, String authorSurname, String authorName, String authorPatronymic) {
+    private Author getValidatedAuthor(long id, String authorSurname, String authorName, String authorPatronymic) {
         if(StringUtils.isBlank(authorName))
             throw new ValidateException("Author name is null or empty!");
         if(StringUtils.isBlank(authorSurname))

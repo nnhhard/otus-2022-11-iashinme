@@ -5,15 +5,18 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import ru.iashinme.homework05.domain.Book;
+import ru.iashinme.homework05.service.BookConverter;
 import ru.iashinme.homework05.service.BookService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @ShellComponent
 @RequiredArgsConstructor
 public class BookShell {
 
     private final BookService bookService;
+    private final BookConverter bookConverter;
 
     @ShellMethod(value = "Create book", key = {"create-book", "cb"})
     public String createBook(@ShellOption String name, @ShellOption long authorId, @ShellOption long genreId) {
@@ -22,8 +25,12 @@ public class BookShell {
     }
 
     @ShellMethod(value = "Get book list", key = {"get-book-list", "getallb"})
-    public List<Book> getAllBooks() {
-        return bookService.getAllBooks();
+    public List<String> getAllBooks() {
+        return bookService
+                .getAllBooks()
+                .stream()
+                .map(bookConverter::bookToString)
+                .collect(Collectors.toList());
     }
 
     @ShellMethod(value = "Delete book", key = {"delete-book", "delb"})
@@ -38,8 +45,8 @@ public class BookShell {
     }
 
     @ShellMethod(value = "Get book by id", key = {"grt-book-by-id", "getb"})
-    public Book getBookById(@ShellOption long id) {
-        return bookService.getBookById(id);
+    public String getBookById(@ShellOption long id) {
+        return bookConverter.bookToString(bookService.getBookById(id));
     }
 
     @ShellMethod(value = "Update book", key = {"update-book", "ub"})

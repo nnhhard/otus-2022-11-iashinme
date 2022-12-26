@@ -26,7 +26,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public long createBook(String bookName, long bookAuthorId, long bookGenreId) {
-        var book = getValidateBook(0, bookName, bookAuthorId, bookGenreId);
+        var book = getValidatedBook(0, bookName, bookAuthorId, bookGenreId);
         return bookDao.insert(book);
     }
 
@@ -47,11 +47,11 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public int updateBook(long id, String bookName, long bookAuthorId, long bookGenreId) {
-        var book = getValidateBook(id, bookName, bookAuthorId, bookGenreId);
+        var book = getValidatedBook(id, bookName, bookAuthorId, bookGenreId);
         return bookDao.update(book);
     }
 
-    private Book getValidateBook(long id, String bookName, long bookAuthorId, long bookGenreId) {
+    private Book getValidatedBook(long id, String bookName, long bookAuthorId, long bookGenreId) {
         if(StringUtils.isBlank(bookName))
             throw new ValidateException("Book name is null or empty!");
         Author author;

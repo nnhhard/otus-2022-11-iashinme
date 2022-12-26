@@ -4,16 +4,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
-import ru.iashinme.homework05.domain.Author;
+import ru.iashinme.homework05.service.AuthorConverter;
 import ru.iashinme.homework05.service.AuthorService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @ShellComponent
 @RequiredArgsConstructor
 public class AuthorShell {
 
     private final AuthorService authorService;
+    private final AuthorConverter authorConverter;
 
     @ShellMethod(value = "Get authors countAuthors", key = {"get-author-countAuthors", "counta"})
     public int countAuthors() {
@@ -21,13 +23,17 @@ public class AuthorShell {
     }
 
     @ShellMethod(value = "Get all Authors", key = {"get-author-list", "getalla"})
-    public List<Author> getAllAuthors() {
-        return authorService.getAllAuthors();
+    public List<String> getAllAuthors() {
+        return authorService
+                .getAllAuthors()
+                .stream()
+                .map(authorConverter::authorToString)
+                .collect(Collectors.toList());
     }
 
     @ShellMethod(value = "Get Author by id", key = {"get-author-by-id", "geta"})
-    public Author getAuthorById(@ShellOption Long id) {
-        return authorService.getAuthorById(id);
+    public String getAuthorById(@ShellOption Long id) {
+        return authorConverter.authorToString(authorService.getAuthorById(id));
     }
 
     @ShellMethod(value = "Create author", key = {"create-author", "ca"})

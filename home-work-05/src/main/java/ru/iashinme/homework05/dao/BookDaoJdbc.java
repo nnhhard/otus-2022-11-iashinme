@@ -75,8 +75,8 @@ public class BookDaoJdbc implements BookDao {
         return jdbc.query("select books.id, books.name, authors.id as author_id, authors.surname as author_surname, authors.name as author_name," +
                 "authors.patronymic as author_patronymic, genres.id as genre_id, genres.name as genre_name " +
                 "from books " +
-                "join authors on books.author_id = authors.id " +
-                "join genres on books.genre_id = genres.id ", new BookMapper());
+                "inner join authors on books.author_id = authors.id " +
+                "inner join genres on books.genre_id = genres.id ", new BookMapper());
     }
 
     @Override
