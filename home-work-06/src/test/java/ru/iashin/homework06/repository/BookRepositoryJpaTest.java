@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
+import ru.iashin.homework06.model.Author;
 import ru.iashin.homework06.model.Book;
 import ru.iashin.homework06.model.Comment;
 
@@ -19,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Import(BookRepositoryJpa.class)
 public class BookRepositoryJpaTest {
     private static final int EXPECTED_NUMBER_OF_BOOKS = 2;
-    private static final long FIRST_BOOK_ID = -1L;
+    private static final long BOOK_ID = -1L;
     private static final int EXPECTED_QUERIES_COUNT = 2;
 
     @Autowired
@@ -28,17 +29,17 @@ public class BookRepositoryJpaTest {
     @Autowired
     private TestEntityManager em;
 
-    @DisplayName(" должен загружать информацию о нужной книги по ее id")
+    @DisplayName("должен загружать информацию о нужной книги по ее id")
     @Test
     void shouldFindExpectedBookById() {
-        Optional<Book> optionalActualBook = bookRepositoryJpa.findById(FIRST_BOOK_ID);
+        Optional<Book> optionalActualBook = bookRepositoryJpa.findById(BOOK_ID);
 
-        Book expectedBook = em.find(Book.class, FIRST_BOOK_ID);
+        Book expectedBook = em.find(Book.class, BOOK_ID);
 
-        assertThat(optionalActualBook).isPresent().get()
+        assertThat(optionalActualBook)
+                .isPresent()
+                .get()
                 .usingRecursiveComparison().isEqualTo(expectedBook);
-
-        System.out.println(optionalActualBook);
     }
 
     @DisplayName("должен загружать список всех книг")
@@ -53,49 +54,78 @@ public class BookRepositoryJpaTest {
                 .isNotNull()
                 .hasSize(EXPECTED_NUMBER_OF_BOOKS)
                 .allMatch(s -> !s.getName().equals(""))
-                .allMatch(s -> s.getAuthor().size() > 0);
+                .allMatch(s -> s.getAuthors().size() > 0)
+                .allMatch(s -> s.getComments().size() > 0);
 
-        assertThat(sessionFactory.getStatistics().getPrepareStatementCount()).isEqualTo(EXPECTED_QUERIES_COUNT);
+        assertThat(sessionFactory.getStatistics().getPrepareStatementCount())
+                .isEqualTo(EXPECTED_QUERIES_COUNT);
     }
 
     @DisplayName("считать общее количество книг")
     @Test
     void shouldCalcBooksCount() {
         long booksCount = bookRepositoryJpa.count();
-        assertThat(booksCount).isEqualTo(EXPECTED_NUMBER_OF_BOOKS);
+        assertThat(booksCount)
+                .isEqualTo(EXPECTED_NUMBER_OF_BOOKS);
     }
 
     @DisplayName("удалять книгу по ее id")
     @Test
     void shouldDeleteBookById() {
-        Book book = em.find(Book.class, FIRST_BOOK_ID);
+        Book book = em.find(Book.class, BOOK_ID);
         em.detach(book);
 
         bookRepositoryJpa.deleteById(book.getId());
         var findBook = bookRepositoryJpa.findById(book.getId());
 
-        assertThat(findBook).isNotPresent();
+        assertThat(findBook)
+                .isNotPresent();
     }
 
-    @DisplayName("изменять книгу")
+    @DisplayName("изменять название книги")
     @Test
     void shouldUpdateBookName() {
-        var book = bookRepositoryJpa.findById(FIRST_BOOK_ID).orElseThrow(NullPointerException::new);
+        var book = bookRepositoryJpa.findById(BOOK_ID).orElseThrow(NullPointerException::new);
         String oldName = book.getName();
         String newName = "Новое название";
-        em.detach(book);
-
         book.setName(newName);
 
+        bookRepositoryJpa.save(book);
+
+        var expectedBook = em.find(Book.class, BOOK_ID);
+
+        assertThat(expectedBook.getName())
+                .isEqualTo(newName)
+                .isNotEqualTo(oldName);
+    }
+
+    @DisplayName("добавлять комментарий к книге")
+    @Test
+    void shouldAddCommentInBook() {
+        var book = em.find(Book.class, BOOK_ID);
+        int countCommentsInBook = book.getComments().size();
         book.getComments().add(new Comment(book.getId(), "Ну очень скучная книга"));
 
-        Book actualBook = bookRepositoryJpa.save(book);
+        var expectedBook = bookRepositoryJpa.save(book);
+        var actualBook = em.find(Book.class, BOOK_ID);
 
+        assertThat(actualBook.getComments())
+                .hasSize(countCommentsInBook + 1)
+                .isEqualTo(expectedBook.getComments());
+    }
 
-        assertThat(actualBook.getName())
-                .isNotEqualTo(oldName)
-                .isEqualTo(newName);
+    @DisplayName("добавлять автора книгу")
+    @Test
+    void shouldAddAuthorInBook() {
+        var book = bookRepositoryJpa.findById(BOOK_ID).orElseThrow(NullPointerException::new);
+        int countsAuthorsInBook = book.getAuthors().size();
+        book.getAuthors().add(new Author(-2, "Толстой", "Лев", "Николаевич"));
 
-        System.out.println(actualBook);
+        var expectedBook = bookRepositoryJpa.save(book);
+        var actualBook = em.find(Book.class, BOOK_ID);
+
+        assertThat(expectedBook.getAuthors())
+                .hasSize(countsAuthorsInBook + 1)
+                .isEqualTo(actualBook.getAuthors());
     }
 }

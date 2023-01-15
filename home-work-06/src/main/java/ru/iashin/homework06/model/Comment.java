@@ -1,15 +1,14 @@
 package ru.iashin.homework06.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 import static java.time.LocalDateTime.now;
 
-@Data
+@Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -30,6 +29,12 @@ public class Comment {
     private String messageComment;
 
     public Comment(long bookId, String messageComment) {
+        this.bookId = bookId;
+        this.messageComment = messageComment;
+    }
+
+    public Comment(long id, long bookId, String messageComment) {
+        this.id = id;
         this.bookId = bookId;
         this.messageComment = messageComment;
     }

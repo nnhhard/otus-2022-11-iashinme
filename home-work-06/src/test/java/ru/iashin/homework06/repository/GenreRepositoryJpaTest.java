@@ -30,7 +30,10 @@ public class GenreRepositoryJpaTest {
     void shouldFindExpectedGenreById() {
         Optional<Genre> optionalActualGenre = genreRepositoryJpa.findById(FIRST_GENRE_ID);
         Genre expectedGenre = em.find(Genre.class, FIRST_GENRE_ID);
-        assertThat(optionalActualGenre).isPresent().get()
+
+        assertThat(optionalActualGenre)
+                .isPresent()
+                .get()
                 .usingRecursiveComparison().isEqualTo(expectedGenre);
     }
 
@@ -48,7 +51,8 @@ public class GenreRepositoryJpaTest {
     @Test
     void shouldCalcGenresCount() {
         long genresCount = genreRepositoryJpa.count();
-        assertThat(genresCount).isEqualTo(EXPECTED_NUMBER_OF_GENRES);
+        assertThat(genresCount)
+                .isEqualTo(EXPECTED_NUMBER_OF_GENRES);
     }
 
     @DisplayName("удалять жанр по его id")
@@ -60,7 +64,8 @@ public class GenreRepositoryJpaTest {
         genreRepositoryJpa.deleteById(genre.getId());
         var findGenre = genreRepositoryJpa.findById(genre.getId());
 
-        assertThat(findGenre).isNotPresent();
+        assertThat(findGenre)
+                .isNotPresent();
     }
 
     @DisplayName("изменять наименование жанра")

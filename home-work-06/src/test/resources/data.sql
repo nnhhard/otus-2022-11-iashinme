@@ -16,7 +16,7 @@ INSERT INTO BOOKS_AUTHORS(book_id, author_id)
 VALUES (-1, -1),
        (-2, -1);
 
-INSERT INTO COMMENTS(book_id, message_comment)
-VALUES (-1, 'На пару часов чтения'),
-       (-1, 'Спойлер - души умерли'),
-       (-2, 'На новый год буду рассказывать');
+INSERT INTO COMMENTS(id, book_id, message_comment)
+VALUES (-1, -1, 'На пару часов чтения'),
+       (-2, -1, 'Спойлер - души умерли'),
+       (-3, -2, 'На новый год буду рассказывать');
