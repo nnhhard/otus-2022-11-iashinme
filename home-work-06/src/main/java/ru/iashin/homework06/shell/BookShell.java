@@ -8,9 +8,6 @@ import ru.iashin.homework06.service.AuthorService;
 import ru.iashin.homework06.service.BookConverter;
 import ru.iashin.homework06.service.BookService;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @ShellComponent
 @RequiredArgsConstructor
 public class BookShell {
@@ -21,18 +18,18 @@ public class BookShell {
 
     @ShellMethod(value = "Get book by id", key = {"grt-book-by-id", "getb"})
     public String getBookById(@ShellOption long id) {
-        return bookConverter.toString(bookService.getBookById(id));
+        return bookConverter.BookWithAllInfoDtoToString(bookService.getBookById(id));
     }
 
     @ShellMethod(value = "Get book list", key = {"get-book-list", "getallb"})
     public String getAllBooks() {
-        return bookConverter.toString(bookService.getAllBooks());
+        return bookConverter.BookWithIdNameGenreDtoListToString(bookService.getAllBooks());
 
     }
 
     @ShellMethod(value = "Create book", key = {"create-book", "cb"})
     public String createBook(@ShellOption String name, @ShellOption long genreId) {
-        return bookConverter.toString(bookService.createBook(name, genreId));
+        return bookConverter.BookWithIdNameGenreDtoToString(bookService.createBook(name, genreId));
     }
 
     @ShellMethod(value = "Delete book", key = {"delete-book", "delb"})
@@ -50,18 +47,18 @@ public class BookShell {
     public String updateBook(@ShellOption long id,
                              @ShellOption String name,
                              @ShellOption long genreId) {
-        return bookConverter.toString(bookService.updateBook(id, name, genreId));
+        return bookConverter.BookWithIdNameGenreDtoToString(bookService.updateBook(id, name, genreId));
     }
 
     @ShellMethod(value = "Add author in book", key = {"add-author-book", "aab"})
     public String addAuthorBook(@ShellOption long id,
-                             @ShellOption long authorId) {
-        return bookConverter.toString(bookService.addAuthorForBook(id, authorId));
+                                @ShellOption long authorId) {
+        return bookConverter.BookWithAllInfoDtoToString(bookService.addAuthorForBook(id, authorId));
     }
 
     @ShellMethod(value = "Delete author in book", key = {"del-author-book", "dab"})
     public String deleteAuthorBook(@ShellOption long id,
-                             @ShellOption long authorId) {
-        return bookConverter.toString(bookService.deleteAuthorInBook(id, authorId));
+                                   @ShellOption long authorId) {
+        return bookConverter.BookWithAllInfoDtoToString(bookService.deleteAuthorInBook(id, authorId));
     }
 }

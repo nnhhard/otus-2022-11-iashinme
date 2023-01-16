@@ -9,12 +9,8 @@ import java.time.LocalDateTime;
 @Data
 @Getter
 @Builder
-public class CommentDto {
+public class CommentWithoutBookDto {
     private long id;
-
-    private long bookId;
-
     private LocalDateTime time;
-
     private String messageComment;
 }

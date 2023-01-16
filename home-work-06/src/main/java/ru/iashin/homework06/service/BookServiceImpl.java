@@ -6,9 +6,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.iashin.homework06.dto.AuthorDto;
 import ru.iashin.homework06.dto.BookWithAllInfoDto;
+import ru.iashin.homework06.dto.BookWithIdNameGenreDto;
 import ru.iashin.homework06.dto.GenreDto;
 import ru.iashin.homework06.exception.ValidateException;
 import ru.iashin.homework06.mapper.BookWithAllInfoMapper;
+import ru.iashin.homework06.mapper.BookWithIdNameGenreMapper;
 import ru.iashin.homework06.model.Author;
 import ru.iashin.homework06.model.Book;
 import ru.iashin.homework06.model.Genre;
@@ -25,6 +27,7 @@ public class BookServiceImpl implements BookService {
     private final AuthorService authorService;
     private final GenreService genreService;
     private final BookWithAllInfoMapper bookWithAllInfoMapper;
+    private final BookWithIdNameGenreMapper bookWithIdNameGenreMapper;
 
     @Override
     @Transactional(readOnly = true)
@@ -38,7 +41,7 @@ public class BookServiceImpl implements BookService {
         Book book = getBook(id);
         AuthorDto author = authorService.getAuthorById(authorId);
 
-        if(book.getAuthors().stream().filter(a -> a.getId() == authorId).count() > 0) {
+        if (book.getAuthors().stream().anyMatch(a -> a.getId() == authorId)) {
             throw new ValidateException("This author has already been added to the book");
         }
 
@@ -63,11 +66,11 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
-    public BookWithAllInfoDto createBook(String bookName, long bookGenreId) {
+    public BookWithIdNameGenreDto createBook(String bookName, long bookGenreId) {
         validateBookName(bookName);
         GenreDto genre = genreService.getGenreById(bookGenreId);
 
-        return bookWithAllInfoMapper.entityToDto(
+        return bookWithIdNameGenreMapper.entityToDto(
                 bookRepository.save(
                         new Book(0, bookName, new Genre(genre.getId(), genre.getName()))
                 )
@@ -84,8 +87,8 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<BookWithAllInfoDto> getAllBooks() {
-        return bookWithAllInfoMapper.entityToDto(bookRepository.findAll());
+    public List<BookWithIdNameGenreDto> getAllBooks() {
+        return bookWithIdNameGenreMapper.entityToDto(bookRepository.findAll());
     }
 
     @Override
@@ -96,7 +99,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
-    public BookWithAllInfoDto updateBook(long id, String bookName, long bookGenreId) {
+    public BookWithIdNameGenreDto updateBook(long id, String bookName, long bookGenreId) {
         validateBookName(bookName);
 
         var book = bookRepository.findById(id).orElseThrow(
@@ -107,7 +110,7 @@ public class BookServiceImpl implements BookService {
         book.setName(bookName);
         book.setGenre(new Genre(genre.getId(), genre.getName()));
 
-        return bookWithAllInfoMapper.entityToDto(bookRepository.save(book));
+        return bookWithIdNameGenreMapper.entityToDto(bookRepository.save(book));
     }
 
     private Book getBook(long id) {

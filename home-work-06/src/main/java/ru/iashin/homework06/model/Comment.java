@@ -1,6 +1,9 @@
 package ru.iashin.homework06.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -13,14 +16,26 @@ import static java.time.LocalDateTime.now;
 @NoArgsConstructor
 @Entity
 @Table(name = "comments")
-
+@NamedEntityGraph(
+        name = "comment-book-graph",
+        attributeNodes = {
+                @NamedAttributeNode(value = "book", subgraph = "book-genre-subgraph"),
+        },
+        subgraphs = {
+                @NamedSubgraph(
+                        name = "book-genre-subgraph",
+                        attributeNodes = @NamedAttributeNode("genre")
+                )
+        }
+)
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "book_id", nullable = false)
-    private long bookId;
+    @ManyToOne(targetEntity = Book.class, cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @JoinColumn(name = "book_id", referencedColumnName = "id", nullable = false)
+    private Book book;
 
     @Column(name = "time")
     private LocalDateTime time = now();
@@ -28,14 +43,14 @@ public class Comment {
     @Column(name = "message_comment")
     private String messageComment;
 
-    public Comment(long bookId, String messageComment) {
-        this.bookId = bookId;
+    public Comment(Book book, String messageComment) {
+        this.book = book;
         this.messageComment = messageComment;
     }
 
-    public Comment(long id, long bookId, String messageComment) {
+    public Comment(long id, Book book, String messageComment) {
         this.id = id;
-        this.bookId = bookId;
+        this.book = book;
         this.messageComment = messageComment;
     }
 }

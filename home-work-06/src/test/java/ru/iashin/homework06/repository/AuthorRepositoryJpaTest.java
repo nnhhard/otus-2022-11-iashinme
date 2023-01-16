@@ -7,7 +7,9 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import ru.iashin.homework06.model.Author;
+
 import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("Репозиторий на основе Jpa для работы с авторами ")
@@ -23,7 +25,7 @@ public class AuthorRepositoryJpaTest {
     @Autowired
     private TestEntityManager em;
 
-    @DisplayName(" должен загружать информацию о нужном авторе по его id")
+    @DisplayName("должен загружать информацию о нужном авторе по его id")
     @Test
     void shouldFindExpectedAuthorById() {
         Optional<Author> optionalActualAuthor = authorRepositoryJpa.findById(FIRST_AUTHOR_ID);

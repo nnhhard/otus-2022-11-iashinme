@@ -6,7 +6,6 @@ import ru.iashin.homework06.model.Book;
 
 import javax.persistence.EntityGraph;
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.List;
 import java.util.Map;
@@ -26,15 +25,17 @@ public class BookRepositoryJpa implements BookRepository {
 
     @Override
     public List<Book> findAll() {
-        EntityGraph<?> entityGraph = em.getEntityGraph("book-genre-comments-graph");
-        TypedQuery<Book> query = em.createQuery("select b from Book b",Book.class);
+        EntityGraph<?> entityGraph = em.getEntityGraph("book-genre-graph");
+        TypedQuery<Book> query = em.createQuery("select b from Book b", Book.class);
         query.setHint("javax.persistence.fetchgraph", entityGraph);
         return query.getResultList();
     }
 
     @Override
     public Optional<Book> findById(Long id) {
-        Map<String, Object> properties = Map.of("javax.persistence.fetchgraph", em.getEntityGraph("book-genre-comments-graph"));
+        Map<String, Object> properties = Map.of(
+                "javax.persistence.fetchgraph", em.getEntityGraph("book-genre-graph")
+        );
         var book = em.find(Book.class, id, properties);
         return Optional.ofNullable(book);
     }
@@ -51,8 +52,7 @@ public class BookRepositoryJpa implements BookRepository {
 
     @Override
     public void deleteById(Long id) {
-        Query query = em.createQuery("delete from Book b where b.id = :id");
-        query.setParameter("id", id);
-        query.executeUpdate();
+        Book book = em.find(Book.class, id);
+        em.remove(book);
     }
 }

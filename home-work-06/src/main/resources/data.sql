@@ -13,7 +13,7 @@ VALUES ('Проза'),
 
 INSERT INTO BOOKS (name, genre_id)
 VALUES ('Мёртвые души', (SELECT MAX(ID) FROM GENRES WHERE name = 'Поэма')),
-       ('Мёртвые души1', (SELECT MAX(ID) FROM GENRES WHERE name = 'Поэма'));
+       ('Мёртвые души1', (SELECT MAX(ID) FROM GENRES WHERE name = 'Драма'));
 
 INSERT INTO COMMENTS (book_id, message_comment)
 VALUES ((SELECT MAX(ID) FROM BOOKS WHERE name = 'Мёртвые души'), 'На пару часов чтения');

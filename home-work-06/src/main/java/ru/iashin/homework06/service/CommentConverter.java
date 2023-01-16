@@ -1,11 +1,15 @@
 package ru.iashin.homework06.service;
 
-import ru.iashin.homework06.dto.CommentDto;
+import ru.iashin.homework06.dto.CommentWithBookIdNameGenreDto;
+import ru.iashin.homework06.dto.CommentWithoutBookDto;
 
 import java.util.List;
 
 public interface CommentConverter {
 
-    String toString(CommentDto comment);
-    String toString(List<CommentDto> comments);
+    String CommentWithoutBookDtoToString(CommentWithoutBookDto comment);
+
+    String CommentWithoutBookDtoListToString(List<CommentWithoutBookDto> comments);
+
+    String CommentWithBookIdNameGenreDtoToString(CommentWithBookIdNameGenreDto comment);
 }

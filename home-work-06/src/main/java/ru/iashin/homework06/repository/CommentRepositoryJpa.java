@@ -5,9 +5,9 @@ import org.springframework.stereotype.Repository;
 import ru.iashin.homework06.model.Comment;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -28,31 +28,23 @@ public class CommentRepositoryJpa implements CommentRepository {
 
     @Override
     public Optional<Comment> findById(long id) {
-        return Optional.ofNullable(em.find(Comment.class, id));
+        Map<String, Object> properties = Map.of(
+                "javax.persistence.fetchgraph", em.getEntityGraph("comment-book-graph")
+        );
+        var comment = em.find(Comment.class, id, properties);
+        return Optional.ofNullable(comment);
     }
 
     @Override
     public List<Comment> findByBookId(long bookId) {
-        TypedQuery<Comment> query = em.createQuery("select c from Comment c where c.bookId = :bookId", Comment.class);
+        TypedQuery<Comment> query = em.createQuery("select c from Comment c where c.book.id = :bookId", Comment.class);
         query.setParameter("bookId", bookId);
         return query.getResultList();
     }
 
     @Override
-    public void deleteByBookId(long bookId) {
-        Query query = em.createQuery("delete " +
-                "from Comment c " +
-                "where c.bookId = :bookId");
-        query.setParameter("bookId", bookId);
-        query.executeUpdate();
-    }
-
-    @Override
     public void deleteById(long id) {
-        Query query = em.createQuery("delete " +
-                "from Comment c " +
-                "where c.id = :id");
-        query.setParameter("id", id);
-        query.executeUpdate();
+        Comment comment = em.find(Comment.class, id);
+        em.remove(comment);
     }
 }

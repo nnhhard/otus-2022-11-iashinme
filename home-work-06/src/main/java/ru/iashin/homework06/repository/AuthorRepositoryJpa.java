@@ -5,7 +5,6 @@ import org.springframework.stereotype.Repository;
 import ru.iashin.homework06.model.Author;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,11 +36,8 @@ public class AuthorRepositoryJpa implements AuthorRepository {
 
     @Override
     public void deleteById(long id) {
-        Query query = em.createQuery("delete " +
-                "from Author a " +
-                "where a.id = :id");
-        query.setParameter("id", id);
-        query.executeUpdate();
+        Author author = em.find(Author.class, id);
+        em.remove(author);
     }
 
     @Override

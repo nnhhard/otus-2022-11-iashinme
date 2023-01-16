@@ -7,9 +7,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import ru.iashin.homework06.dto.AuthorDto;
 import ru.iashin.homework06.dto.BookWithAllInfoDto;
+import ru.iashin.homework06.dto.BookWithIdNameGenreDto;
 import ru.iashin.homework06.dto.GenreDto;
 import ru.iashin.homework06.exception.ValidateException;
 import ru.iashin.homework06.mapper.BookWithAllInfoMapper;
+import ru.iashin.homework06.mapper.BookWithIdNameGenreMapper;
 import ru.iashin.homework06.model.Author;
 import ru.iashin.homework06.model.Book;
 import ru.iashin.homework06.model.Genre;
@@ -18,7 +20,7 @@ import ru.iashin.homework06.repository.BookRepository;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -40,6 +42,9 @@ public class BookServiceImplTest {
 
     @MockBean
     private BookWithAllInfoMapper bookWithAllInfoMapper;
+
+    @MockBean
+    private BookWithIdNameGenreMapper bookWithIdNameGenreMapper;
 
 
     private static final Genre EXPECTED_GENRE = new Genre(-1, "GENRE_NAME");
@@ -68,6 +73,14 @@ public class BookServiceImplTest {
             .genre(EXPECTED_GENRE_DTO)
             .build();
 
+    private static final BookWithIdNameGenreDto EXPECTED_BOOK_ID_NAME_GENRE_DTO = BookWithIdNameGenreDto
+            .builder()
+            .id(EXPECTED_BOOK.getId())
+            .name(EXPECTED_BOOK.getName())
+            .genre(EXPECTED_GENRE_DTO)
+            .build();
+
+
     private static final long EXPECTED_BOOK_COUNT = 1;
 
     @Test
@@ -92,11 +105,11 @@ public class BookServiceImplTest {
     @Test
     void shouldReturnExpectedBookList() {
         when(bookRepository.findAll()).thenReturn(List.of(EXPECTED_BOOK));
-        when(bookWithAllInfoMapper.entityToDto(List.of(EXPECTED_BOOK))).thenReturn(List.of(EXPECTED_BOOK_DTO));
+        when(bookWithIdNameGenreMapper.entityToDto(List.of(EXPECTED_BOOK))).thenReturn(List.of(EXPECTED_BOOK_ID_NAME_GENRE_DTO));
 
         var actualList = bookService.getAllBooks();
 
-        assertThat(actualList).usingRecursiveFieldByFieldElementComparator().containsExactly(EXPECTED_BOOK_DTO);
+        assertThat(actualList).usingRecursiveFieldByFieldElementComparator().containsExactly(EXPECTED_BOOK_ID_NAME_GENRE_DTO);
     }
 
     @DisplayName("возвращать ожидаемую книгу по его id")
@@ -116,19 +129,19 @@ public class BookServiceImplTest {
     void shouldCreateBook() {
         when(bookRepository.save(any(Book.class))).thenReturn(EXPECTED_BOOK);
         when(genreService.getGenreById(any(Long.class))).thenReturn(EXPECTED_GENRE_DTO);
-        when(bookWithAllInfoMapper.entityToDto(any(Book.class))).thenReturn(EXPECTED_BOOK_DTO);
+        when(bookWithIdNameGenreMapper.entityToDto(any(Book.class))).thenReturn(EXPECTED_BOOK_ID_NAME_GENRE_DTO);
 
         var actualBook = bookService.createBook(EXPECTED_BOOK.getName(), EXPECTED_BOOK.getGenre().getId());
 
         assertThat(actualBook)
-                .isEqualTo(EXPECTED_BOOK_DTO);
+                .isEqualTo(EXPECTED_BOOK_ID_NAME_GENRE_DTO);
     }
 
     @DisplayName("обновлять книгу по id")
     @Test
     void shouldUpdateBook() {
         Book book = new Book(-1, "Мертвые дущи том №2", EXPECTED_GENRE);
-        BookWithAllInfoDto bookDto = BookWithAllInfoDto
+        BookWithIdNameGenreDto bookDto = BookWithIdNameGenreDto
                 .builder()
                 .id(book.getId())
                 .name(book.getName())
@@ -138,7 +151,7 @@ public class BookServiceImplTest {
         when(bookRepository.save(any(Book.class))).thenReturn(book);
         when(bookRepository.findById(any(Long.class))).thenReturn(Optional.of(book));
         when(genreService.getGenreById(any(Long.class))).thenReturn(EXPECTED_GENRE_DTO);
-        when(bookWithAllInfoMapper.entityToDto(any(Book.class))).thenReturn(bookDto);
+        when(bookWithIdNameGenreMapper.entityToDto(any(Book.class))).thenReturn(bookDto);
 
         var actualBook = bookService.updateBook(book.getId(), book.getName(), book.getGenre().getId());
 

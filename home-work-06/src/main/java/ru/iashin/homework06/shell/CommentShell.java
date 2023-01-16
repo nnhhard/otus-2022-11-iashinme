@@ -16,25 +16,25 @@ public class CommentShell {
 
     @ShellMethod(value = "Get all comments by book id", key = {"get-comment-list", "getallc"})
     public String getCommentsByBookId(@ShellOption long bookId) {
-        return commentConverter.toString(commentService.getAllCommentsByBookId(bookId));
+        return commentConverter.CommentWithoutBookDtoListToString(commentService.getAllCommentsByBookId(bookId));
     }
 
     @ShellMethod(value = "Get comment by id", key = {"get-comment-by-id", "getc"})
     public String getCommentById(@ShellOption Long id) {
-        return commentConverter.toString(commentService.getCommentById(id));
+        return commentConverter.CommentWithBookIdNameGenreDtoToString(commentService.getCommentById(id));
     }
 
     @ShellMethod(value = "Create comment", key = {"create-comment", "cc"})
     public String createComment(@ShellOption long bookId, @ShellOption String message) {
         var comment = commentService.createComment(bookId, message);
-        return "The comment has been added successfully! " + commentConverter.toString(comment);
+        return "The comment has been added successfully! " + commentConverter.CommentWithBookIdNameGenreDtoToString(comment);
     }
 
     @ShellMethod(value = "Update comment", key = {"update-comment", "uc"})
     public String updateComment(@ShellOption Long id,
                                 @ShellOption String name) {
         var comment = commentService.updateComment(id, name);
-        return "Record changed successfully! " + commentConverter.toString(comment);
+        return "Record changed successfully! " + commentConverter.CommentWithBookIdNameGenreDtoToString(comment);
     }
 
     @ShellMethod(value = "Delete comment by id", key = {"delete-comment-by-id", "delc"})

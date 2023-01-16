@@ -2,7 +2,7 @@ package ru.iashin.homework06.mapper;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.iashin.homework06.dto.BookWithAllInfoDto;
+import ru.iashin.homework06.dto.BookWithIdNameGenreDto;
 import ru.iashin.homework06.model.Book;
 
 import java.util.List;
@@ -10,22 +10,20 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class BookWithAllInfoMapper {
+public class BookWithIdNameGenreMapper {
 
-    private final AuthorMapper authorMapper;
     private final GenreMapper genreMapper;
 
-    public List<BookWithAllInfoDto> entityToDto(List<Book> books) {
+    public List<BookWithIdNameGenreDto> entityToDto(List<Book> books) {
         return books.stream().map(this::entityToDto)
                 .collect(Collectors.toList());
     }
 
-    public BookWithAllInfoDto entityToDto(Book book) {
-        return BookWithAllInfoDto
+    public BookWithIdNameGenreDto entityToDto(Book book) {
+        return BookWithIdNameGenreDto
                 .builder()
                 .id(book.getId())
                 .name(book.getName())
-                .authors(authorMapper.entityToDto(book.getAuthors()))
                 .genre(genreMapper.entityToDto(book.getGenre()))
                 .build();
     }

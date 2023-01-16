@@ -20,7 +20,6 @@ public class GenreServiceImpl implements GenreService {
     private final GenreRepository genreRepository;
     private final GenreMapper genreMapper;
 
-
     @Override
     @Transactional
     public GenreDto createGenre(String genreName) {
@@ -58,14 +57,14 @@ public class GenreServiceImpl implements GenreService {
     @Override
     @Transactional
     public void deleteGenreById(long id) {
-        if(genreRepository.findById(id).isEmpty()) {
+        if (genreRepository.findById(id).isEmpty()) {
             throw new ValidateException("Genre not find with id = " + id);
         }
         genreRepository.deleteById(id);
     }
 
     private Genre getValidatedGenre(long id, String genreName) {
-        if(StringUtils.isBlank(genreName))
+        if (StringUtils.isBlank(genreName))
             throw new ValidateException("Genre name is null or empty!");
         return new Genre(id, genreName);
     }

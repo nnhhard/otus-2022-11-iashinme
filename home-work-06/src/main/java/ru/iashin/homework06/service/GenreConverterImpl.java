@@ -18,7 +18,7 @@ public class GenreConverterImpl implements GenreConverter {
 
     @Override
     public String toString(List<GenreDto> genres) {
-        if(genres.size() == 0) {
+        if (genres.size() == 0) {
             return "Genre No.";
         }
 
@@ -27,6 +27,6 @@ public class GenreConverterImpl implements GenreConverter {
                 .map(this::toString)
                 .collect(Collectors.toList());
 
-        return  "Genres:\n    " + String.join(",\n    ", genresString) + ".";
+        return "Genres:\n    " + String.join(",\n    ", genresString) + ".";
     }
 }

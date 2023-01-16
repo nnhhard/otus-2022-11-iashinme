@@ -56,16 +56,16 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     @Transactional
     public void deleteAuthorById(long id) {
-        if(authorRepository.findById(id).isEmpty()) {
+        if (authorRepository.findById(id).isEmpty()) {
             throw new ValidateException("Author not find with id = " + id);
         }
         authorRepository.deleteById(id);
     }
 
     private Author getValidatedAuthor(long id, String authorSurname, String authorName, String authorPatronymic) {
-        if(StringUtils.isBlank(authorName))
+        if (StringUtils.isBlank(authorName))
             throw new ValidateException("Author name is null or empty!");
-        if(StringUtils.isBlank(authorSurname))
+        if (StringUtils.isBlank(authorSurname))
             throw new ValidateException("Author surname is null or empty!");
         return new Author(id, authorSurname, authorName, authorPatronymic);
     }

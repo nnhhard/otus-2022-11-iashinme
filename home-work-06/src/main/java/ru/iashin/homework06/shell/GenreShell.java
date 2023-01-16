@@ -37,7 +37,7 @@ public class GenreShell {
 
     @ShellMethod(value = "Update genre", key = {"update-genre", "ug"})
     public String updateGenre(@ShellOption Long id,
-                               @ShellOption String name) {
+                              @ShellOption String name) {
         return "Record changed successfully! " +
                 genreConverter.toString(genreService.updateGenre(id, name));
     }

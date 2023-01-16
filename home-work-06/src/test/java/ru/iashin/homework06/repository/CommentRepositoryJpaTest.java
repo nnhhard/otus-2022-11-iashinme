@@ -62,16 +62,6 @@ public class CommentRepositoryJpaTest {
         assertThat(findComment).isNotPresent();
     }
 
-    @DisplayName("удалять комментарии по id книги")
-    @Test
-    void shouldDeleteCommentsByBookId() {
-        List<Comment> commentsAfterDelete = commentRepositoryJpa.findByBookId(BOOK_ID);
-        commentRepositoryJpa.deleteByBookId(BOOK_ID);
-        List<Comment> commentsActual = commentRepositoryJpa.findByBookId(BOOK_ID);
-
-        assertThat(commentsActual.size()).isEqualTo(0).isNotEqualTo(commentsAfterDelete.size());
-    }
-
     @DisplayName("изменять комментарий по его id")
     @Test
     void shouldUpdateCommentById() {

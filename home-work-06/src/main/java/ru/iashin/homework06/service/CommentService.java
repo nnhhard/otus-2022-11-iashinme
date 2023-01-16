@@ -1,18 +1,19 @@
 package ru.iashin.homework06.service;
 
-import ru.iashin.homework06.dto.CommentDto;
+import ru.iashin.homework06.dto.CommentWithBookIdNameGenreDto;
+import ru.iashin.homework06.dto.CommentWithoutBookDto;
 
 import java.util.List;
 
 public interface CommentService {
 
-    CommentDto createComment(long bookId, String messageComment);
+    CommentWithBookIdNameGenreDto createComment(long bookId, String messageComment);
 
-    CommentDto updateComment(long id, String messageComment);
+    CommentWithBookIdNameGenreDto updateComment(long id, String messageComment);
 
-    CommentDto getCommentById(long id);
+    CommentWithBookIdNameGenreDto getCommentById(long id);
 
-    List<CommentDto> getAllCommentsByBookId(long bookId);
+    List<CommentWithoutBookDto> getAllCommentsByBookId(long bookId);
 
     void deleteCommentById(long id);
 }
