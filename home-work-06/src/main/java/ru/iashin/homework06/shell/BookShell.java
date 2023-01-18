@@ -18,18 +18,18 @@ public class BookShell {
 
     @ShellMethod(value = "Get book by id", key = {"grt-book-by-id", "getb"})
     public String getBookById(@ShellOption long id) {
-        return bookConverter.BookWithAllInfoDtoToString(bookService.getBookById(id));
+        return bookConverter.bookWithAllInfoDtoToString(bookService.getBookById(id));
     }
 
     @ShellMethod(value = "Get book list", key = {"get-book-list", "getallb"})
     public String getAllBooks() {
-        return bookConverter.BookWithIdNameGenreDtoListToString(bookService.getAllBooks());
+        return bookConverter.bookWithIdNameGenreDtoListToString(bookService.getAllBooks());
 
     }
 
     @ShellMethod(value = "Create book", key = {"create-book", "cb"})
     public String createBook(@ShellOption String name, @ShellOption long genreId) {
-        return bookConverter.BookWithIdNameGenreDtoToString(bookService.createBook(name, genreId));
+        return bookConverter.bookWithIdNameGenreDtoToString(bookService.createBook(name, genreId));
     }
 
     @ShellMethod(value = "Delete book", key = {"delete-book", "delb"})
@@ -47,18 +47,18 @@ public class BookShell {
     public String updateBook(@ShellOption long id,
                              @ShellOption String name,
                              @ShellOption long genreId) {
-        return bookConverter.BookWithIdNameGenreDtoToString(bookService.updateBook(id, name, genreId));
+        return bookConverter.bookWithIdNameGenreDtoToString(bookService.updateBook(id, name, genreId));
     }
 
     @ShellMethod(value = "Add author in book", key = {"add-author-book", "aab"})
     public String addAuthorBook(@ShellOption long id,
                                 @ShellOption long authorId) {
-        return bookConverter.BookWithAllInfoDtoToString(bookService.addAuthorForBook(id, authorId));
+        return bookConverter.bookWithAllInfoDtoToString(bookService.addAuthorForBook(id, authorId));
     }
 
     @ShellMethod(value = "Delete author in book", key = {"del-author-book", "dab"})
     public String deleteAuthorBook(@ShellOption long id,
                                    @ShellOption long authorId) {
-        return bookConverter.BookWithAllInfoDtoToString(bookService.deleteAuthorInBook(id, authorId));
+        return bookConverter.bookWithAllInfoDtoToString(bookService.deleteAuthorInBook(id, authorId));
     }
 }

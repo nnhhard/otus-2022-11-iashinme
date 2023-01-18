@@ -16,7 +16,7 @@ public class BookConverterImpl implements BookConverter {
     private final GenreConverter genreConverter;
 
     @Override
-    public String BookWithAllInfoDtoToString(BookWithAllInfoDto book) {
+    public String bookWithAllInfoDtoToString(BookWithAllInfoDto book) {
         return String.join("\n",
                 "Id = " + book.getId(),
                 "Name = " + book.getName(),
@@ -26,17 +26,17 @@ public class BookConverterImpl implements BookConverter {
     }
 
     @Override
-    public String BookWithAllInfoDtoListToString(List<BookWithAllInfoDto> books) {
+    public String bookWithAllInfoDtoListToString(List<BookWithAllInfoDto> books) {
         var booksString = books
                 .stream()
-                .map(this::BookWithAllInfoDtoToString)
+                .map(this::bookWithAllInfoDtoToString)
                 .collect(Collectors.toList());
 
         return "Books:\n" + String.join(";\n", booksString) + ";";
     }
 
     @Override
-    public String BookWithIdNameGenreDtoToString(BookWithIdNameGenreDto book) {
+    public String bookWithIdNameGenreDtoToString(BookWithIdNameGenreDto book) {
         return String.join("\n",
                 "Id = " + book.getId(),
                 "Name = " + book.getName(),
@@ -45,10 +45,10 @@ public class BookConverterImpl implements BookConverter {
     }
 
     @Override
-    public String BookWithIdNameGenreDtoListToString(List<BookWithIdNameGenreDto> books) {
+    public String bookWithIdNameGenreDtoListToString(List<BookWithIdNameGenreDto> books) {
         var booksString = books
                 .stream()
-                .map(this::BookWithIdNameGenreDtoToString)
+                .map(this::bookWithIdNameGenreDtoToString)
                 .collect(Collectors.toList());
 
         return "Books:\n" + String.join(";\n", booksString) + ";";

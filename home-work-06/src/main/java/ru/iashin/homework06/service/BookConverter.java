@@ -7,11 +7,11 @@ import java.util.List;
 
 public interface BookConverter {
 
-    String BookWithAllInfoDtoToString(BookWithAllInfoDto book);
+    String bookWithAllInfoDtoToString(BookWithAllInfoDto book);
 
-    String BookWithAllInfoDtoListToString(List<BookWithAllInfoDto> books);
+    String bookWithAllInfoDtoListToString(List<BookWithAllInfoDto> books);
 
-    String BookWithIdNameGenreDtoToString(BookWithIdNameGenreDto book);
+    String bookWithIdNameGenreDtoToString(BookWithIdNameGenreDto book);
 
-    String BookWithIdNameGenreDtoListToString(List<BookWithIdNameGenreDto> books);
+    String bookWithIdNameGenreDtoListToString(List<BookWithIdNameGenreDto> books);
 }

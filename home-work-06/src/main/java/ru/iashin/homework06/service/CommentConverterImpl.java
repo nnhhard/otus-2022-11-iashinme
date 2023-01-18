@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 @Service
 public class CommentConverterImpl implements CommentConverter {
     @Override
-    public String CommentWithoutBookDtoToString(CommentWithoutBookDto comment) {
+    public String commentWithoutBookDtoToString(CommentWithoutBookDto comment) {
         return String.join(" ",
                 "Id = " + comment.getId(),
                 "MessageComment = " + comment.getMessageComment(),
@@ -19,21 +19,21 @@ public class CommentConverterImpl implements CommentConverter {
     }
 
     @Override
-    public String CommentWithoutBookDtoListToString(List<CommentWithoutBookDto> comments) {
+    public String commentWithoutBookDtoListToString(List<CommentWithoutBookDto> comments) {
         if (comments.size() == 0) {
             return "Comment No.";
         }
 
         var commentsString = comments
                 .stream()
-                .map(this::CommentWithoutBookDtoToString)
+                .map(this::commentWithoutBookDtoToString)
                 .collect(Collectors.toList());
 
         return "Comments:\n    " + String.join(",\n    ", commentsString) + ".";
     }
 
     @Override
-    public String CommentWithBookIdNameGenreDtoToString(CommentWithBookIdNameGenreDto comment) {
+    public String commentWithBookIdNameGenreDtoToString(CommentWithBookIdNameGenreDto comment) {
         return String.join(" ",
                 "CommentId = " + comment.getId(),
                 "BookId = " + comment.getBook().getId(),

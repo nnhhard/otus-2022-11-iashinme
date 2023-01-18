@@ -7,9 +7,9 @@ import java.util.List;
 
 public interface CommentConverter {
 
-    String CommentWithoutBookDtoToString(CommentWithoutBookDto comment);
+    String commentWithoutBookDtoToString(CommentWithoutBookDto comment);
 
-    String CommentWithoutBookDtoListToString(List<CommentWithoutBookDto> comments);
+    String commentWithoutBookDtoListToString(List<CommentWithoutBookDto> comments);
 
-    String CommentWithBookIdNameGenreDtoToString(CommentWithBookIdNameGenreDto comment);
+    String commentWithBookIdNameGenreDtoToString(CommentWithBookIdNameGenreDto comment);
 }
