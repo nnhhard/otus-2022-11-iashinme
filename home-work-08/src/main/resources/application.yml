@@ -1,0 +1,16 @@
+spring:
+  main:
+    allow-circular-references: true
+  data:
+    mongodb:
+      authentication-database: admin
+      username: mongoadmin
+      password: bdung
+      database: test
+      port: 27017
+      host: localhost
+
+mongock:
+  runner-type: "InitializingBean"
+  change-logs-scan-package:
+    - ru.iashinme.homework08.mongock.changelog
