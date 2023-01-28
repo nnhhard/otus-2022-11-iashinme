@@ -7,6 +7,5 @@ import java.util.List;
 public interface AuthorConverter {
 
     String toString(AuthorDto author);
-
     String toString(List<AuthorDto> authors);
 }

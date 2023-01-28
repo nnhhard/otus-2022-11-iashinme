@@ -7,6 +7,5 @@ import java.util.List;
 public interface CommentConverter {
 
     String commentDtoToString(CommentDto comment);
-
     String commentDtoListToStringWithGroupByBookId(List<CommentDto> comments);
 }

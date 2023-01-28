@@ -3,7 +3,6 @@ package ru.iashinme.homework08.service;
 import org.springframework.stereotype.Service;
 import ru.iashinme.homework08.dto.CommentDto;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
