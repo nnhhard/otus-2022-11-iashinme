@@ -1,30 +1,27 @@
 package ru.iashinme.homework08.service;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.iashinme.homework08.dto.GenreDto;
 import ru.iashinme.homework08.exception.ValidateException;
 import ru.iashinme.homework08.mapper.GenreMapper;
+import ru.iashinme.homework08.model.Book;
 import ru.iashinme.homework08.model.Genre;
+import ru.iashinme.homework08.repository.BookRepository;
 import ru.iashinme.homework08.repository.GenreRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class GenreServiceImpl implements GenreService {
 
     private final GenreRepository genreRepository;
-    private final BookService bookService;
+    private final BookRepository bookRepository;
     private final GenreMapper genreMapper;
-
-    public GenreServiceImpl(GenreRepository genreRepository, @Lazy BookService bookService, GenreMapper genreMapper) {
-        this.genreRepository = genreRepository;
-        this.bookService = bookService;
-        this.genreMapper = genreMapper;
-    }
 
     @Override
     @Transactional
@@ -37,7 +34,16 @@ public class GenreServiceImpl implements GenreService {
     @Transactional
     public GenreDto updateGenre(String id, String genreName) {
         Genre genre = getValidatedGenre(id, genreName);
-        return genreMapper.entityToDto(genreRepository.save(genre));
+        genreRepository.save(genre);
+
+        List<Book> books = bookRepository.findAllByGenre_Id(id);
+
+        books.forEach(
+                b -> b.setGenre(genre)
+        );
+
+        bookRepository.saveAll(books);
+        return genreMapper.entityToDto(genre);
     }
 
     @Override
@@ -63,11 +69,7 @@ public class GenreServiceImpl implements GenreService {
     @Override
     @Transactional
     public void deleteGenreById(String id) {
-        if (genreRepository.findById(id).isEmpty()) {
-            throw new ValidateException("Genre not find with id = " + id);
-        }
-
-        if(bookService.countBooksByGenreId(id) > 0) {
+        if (bookRepository.existsBookByGenre_Id(id)) {
             throw new ValidateException("It is not possible to delete a genre, since there are books with this genre");
         }
 

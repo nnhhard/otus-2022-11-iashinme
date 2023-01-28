@@ -6,8 +6,6 @@ import java.util.List;
 
 public interface CommentService {
 
-    void deleteAllByBookId(String bookId);
-
     CommentDto createComment(String bookId, String messageComment);
 
     CommentDto updateComment(String id, String messageComment);

@@ -1,47 +1,35 @@
 package ru.iashinme.homework08.service;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.iashinme.homework08.dto.AuthorDto;
 import ru.iashinme.homework08.dto.BookWithAllInfoDto;
 import ru.iashinme.homework08.dto.BookWithIdNameGenreDto;
-import ru.iashinme.homework08.dto.GenreDto;
 import ru.iashinme.homework08.exception.ValidateException;
 import ru.iashinme.homework08.mapper.BookWithAllInfoMapper;
 import ru.iashinme.homework08.mapper.BookWithIdNameGenreMapper;
 import ru.iashinme.homework08.model.Author;
 import ru.iashinme.homework08.model.Book;
 import ru.iashinme.homework08.model.Genre;
+import ru.iashinme.homework08.repository.AuthorRepository;
 import ru.iashinme.homework08.repository.BookRepository;
+import ru.iashinme.homework08.repository.CommentRepository;
+import ru.iashinme.homework08.repository.GenreRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
-    private final AuthorService authorService;
-    private final GenreService genreService;
-    private final CommentService commentService;
+    private final AuthorRepository authorRepository;
+    private final GenreRepository genreRepository;
+    private final CommentRepository commentRepository;
     private final BookWithAllInfoMapper bookWithAllInfoMapper;
     private final BookWithIdNameGenreMapper bookWithIdNameGenreMapper;
-
-    public BookServiceImpl(BookRepository bookRepository,
-                           AuthorService authorService,
-                           GenreService genreService,
-                           @Lazy CommentService commentService,
-                           BookWithAllInfoMapper bookWithAllInfoMapper,
-                           BookWithIdNameGenreMapper bookWithIdNameGenreMapper) {
-        this.bookRepository = bookRepository;
-        this.authorService = authorService;
-        this.genreService = genreService;
-        this.commentService = commentService;
-        this.bookWithAllInfoMapper = bookWithAllInfoMapper;
-        this.bookWithIdNameGenreMapper = bookWithIdNameGenreMapper;
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -50,56 +38,48 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public long countBooksByGenreId(String genreId) {
-        return bookRepository.countAllByGenre_id(genreId);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public long countBooksByAuthor(Author author) {
-        return bookRepository.countAllByAuthors(author);
-    }
-
-    @Override
     @Transactional
     public BookWithAllInfoDto addAuthorForBook(String id, String authorId) {
         Book book = getBook(id);
-        AuthorDto author = authorService.getAuthorById(authorId);
+        Author author = authorRepository.findById(authorId).orElseThrow(
+                () -> new ValidateException("Author not find with authorId = " + authorId)
+        );
 
-        if (book.getAuthors().stream().anyMatch(a -> a.getId().equals(authorId))) {
-            throw new ValidateException("This author has already been added to the book");
+        if (book.getAuthors().stream().noneMatch(a -> a.getId().equals(authorId))) {
+            book.getAuthors().add(author);
+            bookRepository.save(book);
         }
 
-        book.getAuthors().add(new Author(author.getId(), author.getSurname(), author.getName(), author.getPatronymic()));
-        return bookWithAllInfoMapper.entityToDto(bookRepository.save(book));
+        return bookWithAllInfoMapper.entityToDto(book);
     }
 
     @Override
     @Transactional
     public BookWithAllInfoDto deleteAuthorInBook(String id, String authorId) {
         Book book = getBook(id);
-        List<Author> authors = book.getAuthors().stream().filter(a -> a.getId().equals(authorId)).collect(Collectors.toList());
-        if (authors.size() == 0) {
-            throw new ValidateException(
-                    String.format("Author (with authorId = %s) not find in Book (with id = %s)", authorId, id)
-            );
-        }
-        authors.forEach(a -> book.getAuthors().remove(a));
+        List<Author> deletedAuthors = book.getAuthors()
+                .stream()
+                .filter(a -> a.getId().equals(authorId))
+                .collect(Collectors.toList());
 
-        return bookWithAllInfoMapper.entityToDto(bookRepository.save(book));
+        if (deletedAuthors.size() > 0) {
+            deletedAuthors.forEach(a -> book.getAuthors().remove(a));
+            bookRepository.save(book);
+        }
+
+        return bookWithAllInfoMapper.entityToDto(book);
     }
 
     @Override
     @Transactional
-    public BookWithIdNameGenreDto createBook(String bookName, String bookGenreId) {
+    public BookWithIdNameGenreDto createBook(String bookName, String genreId) {
         validateBookName(bookName);
-        GenreDto genre = genreService.getGenreById(bookGenreId);
+        Genre genre = genreRepository.findById(genreId).orElseThrow(
+                () -> new ValidateException("Genre not find with genreId = " + genreId)
+        );
 
         return bookWithIdNameGenreMapper.entityToDto(
-                bookRepository.save(
-                        new Book(null, bookName, new Genre(genre.getId(), genre.getName()))
-                )
+                bookRepository.save(new Book(bookName, genre))
         );
     }
 
@@ -120,22 +100,25 @@ public class BookServiceImpl implements BookService {
     @Override
     @Transactional
     public void deleteBookById(String id) {
-        commentService.deleteAllByBookId(id);
+        commentRepository.deleteAllByBook_Id(id);
         bookRepository.deleteById(id);
     }
 
     @Override
     @Transactional
-    public BookWithIdNameGenreDto updateBook(String id, String bookName, String bookGenreId) {
+    public BookWithIdNameGenreDto updateBook(String id, String bookName, String genreId) {
         validateBookName(bookName);
 
-        var book = bookRepository.findById(id).orElseThrow(
+        Book book = bookRepository.findById(id).orElseThrow(
                 () -> new ValidateException(String.format("Book not find with id = %s", id))
         );
-        var genre = genreService.getGenreById(bookGenreId);
+
+        Genre genre = genreRepository.findById(genreId).orElseThrow(
+                () -> new ValidateException("Genre not find with genreId = " + genreId)
+        );
 
         book.setName(bookName);
-        book.setGenre(new Genre(genre.getId(), genre.getName()));
+        book.setGenre(genre);
 
         return bookWithIdNameGenreMapper.entityToDto(bookRepository.save(book));
     }

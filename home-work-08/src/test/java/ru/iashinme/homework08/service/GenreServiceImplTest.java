@@ -9,6 +9,7 @@ import ru.iashinme.homework08.dto.GenreDto;
 import ru.iashinme.homework08.exception.ValidateException;
 import ru.iashinme.homework08.mapper.GenreMapper;
 import ru.iashinme.homework08.model.Genre;
+import ru.iashinme.homework08.repository.BookRepository;
 import ru.iashinme.homework08.repository.GenreRepository;
 
 import java.util.List;
@@ -30,7 +31,7 @@ public class GenreServiceImplTest {
     private GenreRepository genreRepository;
 
     @MockBean
-    private BookService bookService;
+    private BookRepository bookRepository;
 
     @MockBean
     private GenreMapper genreMapper;
@@ -112,20 +113,9 @@ public class GenreServiceImplTest {
     }
 
     @Test
-    @DisplayName("корректно кидать исключение при попытке удалить несуществующего жанра")
-    void shouldCorrectlyExceptionByDeleteGenre() {
-        when(genreRepository.findById(any(String.class))).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> genreService.deleteGenreById(EXPECTED_GENRE.getId()))
-                .isInstanceOf(ValidateException.class)
-                .hasMessageContaining("Genre not find with id = " + EXPECTED_GENRE.getId());
-    }
-
-    @Test
     @DisplayName("корректно кидать исключение при попытке удалить жанр, который используется в книге(книгах)")
     void shouldCorrectlyExceptionByDeleteGenreInExistsBook() {
-        when(genreRepository.findById(any(String.class))).thenReturn(Optional.of(EXPECTED_GENRE));
-        when(bookService.countBooksByGenreId(any(String.class))).thenReturn(1L);
+        when(bookRepository.existsBookByGenre_Id(any(String.class))).thenReturn(true);
 
         assertThatThrownBy(() -> genreService.deleteGenreById(EXPECTED_GENRE.getId()))
                 .isInstanceOf(ValidateException.class)

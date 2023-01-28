@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.stringtemplate.v4.ST;
 
@@ -21,18 +22,21 @@ public class Comment {
 
     @Id
     private String id;
-    private String bookId;
+
+    @DBRef
+    private Book book;
+
     private LocalDateTime time = now();
     private String messageComment;
 
-    public Comment(String bookId, String messageComment) {
-        this.bookId = bookId;
+    public Comment(Book book, String messageComment) {
+        this.book = book;
         this.messageComment = messageComment;
     }
 
-    public Comment(String id, String bookId, String messageComment) {
+    public Comment(String id, Book book, String messageComment) {
         this.id = id;
-        this.bookId = bookId;
+        this.book = book;
         this.messageComment = messageComment;
     }
 }

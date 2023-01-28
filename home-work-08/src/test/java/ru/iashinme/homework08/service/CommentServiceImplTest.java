@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import ru.iashinme.homework08.dto.BookWithAllInfoDto;
 import ru.iashinme.homework08.dto.BookWithIdNameGenreDto;
 import ru.iashinme.homework08.dto.CommentDto;
 import ru.iashinme.homework08.dto.GenreDto;
@@ -14,9 +13,9 @@ import ru.iashinme.homework08.mapper.CommentMapper;
 import ru.iashinme.homework08.model.Book;
 import ru.iashinme.homework08.model.Comment;
 import ru.iashinme.homework08.model.Genre;
+import ru.iashinme.homework08.repository.BookRepository;
 import ru.iashinme.homework08.repository.CommentRepository;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,15 +42,7 @@ public class CommentServiceImplTest {
             .genre(GENRE_DTO)
             .build();
 
-    private final static BookWithAllInfoDto BOOK_WITH_ALL_INFO_DTO = BookWithAllInfoDto
-            .builder()
-            .id(BOOK_ENTITY.getId())
-            .name(BOOK_ENTITY.getName())
-            .genre(GENRE_DTO)
-            .authors(Collections.emptyList())
-            .build();
-
-    private final static Comment COMMENT_ENTITY = new Comment("-1", BOOK_ENTITY.getId(), "comment");
+    private final static Comment COMMENT_ENTITY = new Comment("-1", BOOK_ENTITY, "comment");
     private final static CommentDto EXPECTED_COMMENT_DTO = CommentDto
             .builder()
             .id(COMMENT_ENTITY.getId())
@@ -74,7 +65,7 @@ public class CommentServiceImplTest {
     private CommentRepository commentRepository;
 
     @MockBean
-    private BookService bookService;
+    private BookRepository bookRepository;
 
     @MockBean
     private CommentMapper commentMapper;
@@ -82,12 +73,7 @@ public class CommentServiceImplTest {
     @Test
     @DisplayName("корректно выбрасывать исключение при проверки сообщения комментария")
     public void shouldHaveCorrectExceptionForCheckMessageComment() {
-        when(bookService.getBookById(any(String.class))).thenReturn(
-                BookWithAllInfoDto.builder()
-                        .id("-1")
-                        .name("name")
-                        .build()
-        );
+        when(bookRepository.findById(any(String.class))).thenReturn(Optional.of(BOOK_ENTITY));
 
         assertThatThrownBy(() -> commentService.createComment("-1", ""))
                 .isInstanceOf(ValidateException.class)
@@ -131,11 +117,11 @@ public class CommentServiceImplTest {
                 .thenReturn(COMMENT_ENTITY);
         when(commentMapper.entityToDto(any(Comment.class)))
                 .thenReturn(EXPECTED_COMMENT_DTO);
-        when(bookService.getBookById(any(String.class)))
-                .thenReturn(BOOK_WITH_ALL_INFO_DTO);
+        when(bookRepository.findById(any(String.class)))
+                .thenReturn(Optional.of(BOOK_ENTITY));
 
         var actualComment = commentService.createComment(
-                COMMENT_ENTITY.getBookId(),
+                COMMENT_ENTITY.getBook().getId(),
                 COMMENT_ENTITY.getMessageComment()
         );
 

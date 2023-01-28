@@ -15,7 +15,7 @@ import ru.iashinme.homework08.repository.GenreRepository;
 @ChangeLog
 public class DatabaseChangelog {
 
-    @ChangeSet(order = "001", id = "dropDb", author = "iashinme")
+    @ChangeSet(order = "001", id = "dropDb", author = "iashinme", runAlways = true)
     public void dropDb(MongoDatabase db) {
         db.drop();
     }
@@ -68,7 +68,7 @@ public class DatabaseChangelog {
                         () -> new Exception("Migration error - book not find")
                 );
 
-        commentRepository.save(new Comment(book.getId(), "Сколько раз перечитываю Мертвые души - столько нахожу нового и незамеченного."));
-        commentRepository.save(new Comment(book.getId(), "Автор проявил себя как мастер сатиры - смех сквозь сквозь слезы."));
+        commentRepository.save(new Comment(book, "Сколько раз перечитываю Мертвые души - столько нахожу нового и незамеченного."));
+        commentRepository.save(new Comment(book, "Автор проявил себя как мастер сатиры - смех сквозь сквозь слезы."));
     }
 }

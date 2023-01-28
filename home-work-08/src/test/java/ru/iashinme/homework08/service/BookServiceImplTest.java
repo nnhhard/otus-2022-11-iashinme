@@ -15,7 +15,10 @@ import ru.iashinme.homework08.mapper.BookWithIdNameGenreMapper;
 import ru.iashinme.homework08.model.Author;
 import ru.iashinme.homework08.model.Book;
 import ru.iashinme.homework08.model.Genre;
+import ru.iashinme.homework08.repository.AuthorRepository;
 import ru.iashinme.homework08.repository.BookRepository;
+import ru.iashinme.homework08.repository.CommentRepository;
+import ru.iashinme.homework08.repository.GenreRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,10 +38,13 @@ public class BookServiceImplTest {
     private BookRepository bookRepository;
 
     @MockBean
-    private GenreService genreService;
+    private GenreRepository genreRepository;
 
     @MockBean
-    private AuthorService authorService;
+    private AuthorRepository authorRepository;
+
+    @MockBean
+    private CommentRepository commentRepository;
 
     @MockBean
     private BookWithAllInfoMapper bookWithAllInfoMapper;
@@ -128,7 +134,7 @@ public class BookServiceImplTest {
     @Test
     void shouldCreateBook() {
         when(bookRepository.save(any(Book.class))).thenReturn(EXPECTED_BOOK);
-        when(genreService.getGenreById(any(String.class))).thenReturn(EXPECTED_GENRE_DTO);
+        when(genreRepository.findById(any(String.class))).thenReturn(Optional.of(EXPECTED_GENRE));
         when(bookWithIdNameGenreMapper.entityToDto(any(Book.class))).thenReturn(EXPECTED_BOOK_ID_NAME_GENRE_DTO);
 
         var actualBook = bookService.createBook(EXPECTED_BOOK.getName(), EXPECTED_BOOK.getGenre().getId());
@@ -150,7 +156,7 @@ public class BookServiceImplTest {
 
         when(bookRepository.save(any(Book.class))).thenReturn(book);
         when(bookRepository.findById(book.getId())).thenReturn(Optional.of(book));
-        when(genreService.getGenreById(EXPECTED_GENRE_DTO.getId())).thenReturn(EXPECTED_GENRE_DTO);
+        when(genreRepository.findById(any(String.class))).thenReturn(Optional.of(EXPECTED_GENRE));
         when(bookWithIdNameGenreMapper.entityToDto(any(Book.class))).thenReturn(bookDto);
 
         var actualBook = bookService.updateBook(book.getId(), book.getName(), book.getGenre().getId());
@@ -171,7 +177,7 @@ public class BookServiceImplTest {
                 .build();
 
         when(bookRepository.findById(book.getId())).thenReturn(Optional.of(book));
-        when(authorService.getAuthorById(EXPECTED_AUTHOR_DTO.getId())).thenReturn(EXPECTED_AUTHOR_DTO);
+        when(authorRepository.findById(EXPECTED_AUTHOR_DTO.getId())).thenReturn(Optional.of(EXPECTED_AUTHOR));
         when(bookRepository.save(any(Book.class))).thenReturn(book);
         when(bookWithAllInfoMapper.entityToDto(any(Book.class))).thenReturn(bookDto);
 

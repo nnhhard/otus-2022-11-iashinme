@@ -8,6 +8,7 @@ import ru.iashinme.homework08.dto.CommentDto;
 import ru.iashinme.homework08.exception.ValidateException;
 import ru.iashinme.homework08.mapper.CommentMapper;
 import ru.iashinme.homework08.model.Comment;
+import ru.iashinme.homework08.repository.BookRepository;
 import ru.iashinme.homework08.repository.CommentRepository;
 
 import java.util.List;
@@ -17,22 +18,19 @@ import java.util.List;
 public class CommentServiceImpl implements CommentService {
 
     private final CommentRepository commentRepository;
-    private final BookService bookService;
+    private final BookRepository bookRepository;
     private final CommentMapper commentWithoutBookMapper;
 
     @Override
     @Transactional
-    public void deleteAllByBookId(String bookId) {
-        commentRepository.deleteAllByBookId(bookId);
-    }
-
-    @Override
-    @Transactional
     public CommentDto createComment(String bookId, String messageComment) {
-        var book = bookService.getBookById(bookId);
         validateMessageComment(messageComment);
+        var book = bookRepository.findById(bookId).orElseThrow(
+                () -> new ValidateException("Book not find with bookId = " + bookId)
+        );
+
         return commentWithoutBookMapper.entityToDto(commentRepository.save(
-                new Comment(book.getId(), messageComment))
+                new Comment(book, messageComment))
         );
     }
 

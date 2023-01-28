@@ -10,6 +10,7 @@ import ru.iashinme.homework08.exception.ValidateException;
 import ru.iashinme.homework08.mapper.AuthorMapper;
 import ru.iashinme.homework08.model.Author;
 import ru.iashinme.homework08.repository.AuthorRepository;
+import ru.iashinme.homework08.repository.BookRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +31,7 @@ public class AuthorServiceImplTest {
     private AuthorRepository authorRepository;
 
     @MockBean
-    private BookService bookService;
+    private BookRepository bookRepository;
 
     @MockBean
     private AuthorMapper authorMapper;
@@ -135,20 +136,9 @@ public class AuthorServiceImplTest {
     }
 
     @Test
-    @DisplayName("корректно кидать исключение при попытке удалить несуществующего автора")
-    void shouldCorrectlyExceptionByDeleteAuthor() {
-        when(authorRepository.findById(any(String.class))).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> authorService.deleteAuthorById("-1"))
-                .isInstanceOf(ValidateException.class)
-                .hasMessageContaining("Author not find with id = " + "-1");
-    }
-
-    @Test
     @DisplayName("корректно кидать исключение при попытке удалить автора, который присутствует в книге(книгах)")
     void shouldCorrectlyExceptionByDeleteAuthorInExistsBook() {
-        when(authorRepository.findById(any(String.class))).thenReturn(Optional.of(EXPECTED_AUTHOR));
-        when(bookService.countBooksByAuthor(any(Author.class))).thenReturn(1L);
+        when(bookRepository.existsBookByAuthors_Id(any(String.class))).thenReturn(true);
 
         assertThatThrownBy(() -> authorService.deleteAuthorById("-1"))
                 .isInstanceOf(ValidateException.class)

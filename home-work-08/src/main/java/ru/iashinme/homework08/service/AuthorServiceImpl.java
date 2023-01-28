@@ -1,32 +1,27 @@
 package ru.iashinme.homework08.service;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.iashinme.homework08.dto.AuthorDto;
 import ru.iashinme.homework08.exception.ValidateException;
 import ru.iashinme.homework08.mapper.AuthorMapper;
 import ru.iashinme.homework08.model.Author;
+import ru.iashinme.homework08.model.Book;
 import ru.iashinme.homework08.repository.AuthorRepository;
+import ru.iashinme.homework08.repository.BookRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class AuthorServiceImpl implements AuthorService {
 
     private final AuthorRepository authorRepository;
     private final AuthorMapper authorMapper;
-    private final BookService bookService;
-
-    public AuthorServiceImpl(AuthorRepository authorRepository,
-                             AuthorMapper authorMapper,
-                             @Lazy BookService bookService) {
-
-        this.authorRepository = authorRepository;
-        this.authorMapper = authorMapper;
-        this.bookService = bookService;
-    }
+    private final BookRepository bookRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -45,7 +40,21 @@ public class AuthorServiceImpl implements AuthorService {
     @Transactional
     public AuthorDto updateAuthor(String id, String authorSurname, String authorName, String authorPatronymic) {
         Author author = getValidatedAuthor(id, authorSurname, authorName, authorPatronymic);
-        return authorMapper.entityToDto(authorRepository.save(author));
+        authorRepository.save(author);
+
+        List<Book> books = bookRepository.findAllByAuthors_Id(id);
+        for (var book : books) {
+            book.setAuthors(
+                    book.getAuthors()
+                            .stream()
+                            .filter(a -> !a.getId().equals(id))
+                            .collect(Collectors.toList())
+            );
+            book.getAuthors().add(author);
+        }
+        bookRepository.saveAll(books);
+
+        return authorMapper.entityToDto(author);
     }
 
     @Override
@@ -65,12 +74,7 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     @Transactional
     public void deleteAuthorById(String id) {
-        var author = authorRepository.findById(id);
-        if (author.isEmpty()) {
-            throw new ValidateException("Author not find with id = " + id);
-        }
-
-        if(bookService.countBooksByAuthor(author.get()) > 0) {
+        if (bookRepository.existsBookByAuthors_Id(id)) {
             throw new ValidateException("It is not possible to delete a author, since there are books with this author");
         }
 

@@ -22,14 +22,14 @@ public class CommentMapperTest {
 
     private final static Genre GENRE_ENTITY = new Genre("-1", "genre");
     private final static Book BOOK_ENTITY = new Book("-1", "name", GENRE_ENTITY);
-    private final static Comment COMMENT_ENTITY = new Comment("-1", BOOK_ENTITY.getId(), "comment");
+    private final static Comment COMMENT_ENTITY = new Comment("-1", BOOK_ENTITY, "comment");
 
     private final static CommentDto EXPECTED_COMMENT_WITHOUT_BOOK_DTO = CommentDto
             .builder()
             .id(COMMENT_ENTITY.getId())
             .time(COMMENT_ENTITY.getTime())
             .messageComment(COMMENT_ENTITY.getMessageComment())
-            .bookId(COMMENT_ENTITY.getBookId())
+            .bookId(COMMENT_ENTITY.getBook().getId())
             .build();
 
     @Test

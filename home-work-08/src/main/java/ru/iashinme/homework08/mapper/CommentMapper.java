@@ -23,7 +23,7 @@ public class CommentMapper {
                 .id(comment.getId())
                 .messageComment(comment.getMessageComment())
                 .time(comment.getTime())
-                .bookId(comment.getBookId())
+                .bookId(comment.getBook().getId())
                 .build();
     }
 }
