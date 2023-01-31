@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.iashinme.homework08.dto.GenreDto;
 import ru.iashinme.homework08.exception.ValidateException;
 import ru.iashinme.homework08.mapper.GenreMapper;
-import ru.iashinme.homework08.model.Book;
 import ru.iashinme.homework08.model.Genre;
 import ru.iashinme.homework08.repository.BookRepository;
 import ru.iashinme.homework08.repository.GenreRepository;
@@ -36,13 +35,8 @@ public class GenreServiceImpl implements GenreService {
         Genre genre = getValidatedGenre(id, genreName);
         genreRepository.save(genre);
 
-        List<Book> books = bookRepository.findAllByGenre_Id(id);
+        bookRepository.updateGenreInBook(genre);
 
-        books.forEach(
-                b -> b.setGenre(genre)
-        );
-
-        bookRepository.saveAll(books);
         return genreMapper.entityToDto(genre);
     }
 
