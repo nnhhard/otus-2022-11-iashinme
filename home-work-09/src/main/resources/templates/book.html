@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Edit book</title>
+    <style>
+        body {
+            padding: 50px;
+        }
+
+        label {
+            display: inline-block;
+            width: 100px;
+        }
+
+        input:read-only {
+            background: lightgray;
+        }
+
+        .row {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="row">
+    <a th:href="@{/books}" href="books.html">Book list</a>
+</div>
+
+
+<form id="edit-form" th:action="@{/books/edit(id=${book.id})}" th:method="post"
+      action="books.html">
+    <h1>Book Info:</h1>
+
+    <div class="row">
+        <label for="book-id">ID</label>
+        <input type="text" readonly="readonly" th:value="${book.id}" class="form-control" id="book-id"
+               value="1"/>
+    </div>
+
+    <div class="row">
+        <label for="book-name">Name</label>
+        <input type="text" name="name" th:value="${book.name}" id="book-name"
+               value="Book name"/>
+    </div>
+
+    <div class="row">
+        <label for="author">Author</label>
+        <select th:field="*{book.author}" id="author">
+            <option th:each="author : ${authors}"
+                    th:value="${author.id}"
+                    th:text="${author.surname + ' ' + author.name + ' ' + author.patronymic ?: ''}">
+            </option>
+        </select>
+    </div>
+
+    <div class="row">
+        <label for="genre">Genre</label>
+        <select th:field="*{book.genre}" id="genre">
+            <option th:each="genre : ${genres}"
+                    th:value="${genre.id}"
+                    th:text="${genre.name}">
+            </option>
+        </select>
+    </div>
+
+    <div class="row">
+        <button type="submit">Save</button>
+    </div>
+</form>
+
+
+<form th:action="@{/books/delete/{id}(id=${book.id})}" th:method="post" action="books.html">
+    <div class="row">
+        <button type="submit"
+                onclick="return confirm('Are you sure you want to delete this book?');">Delete
+        </button>
+    </div>
+</form>
+</body>
+</html>
