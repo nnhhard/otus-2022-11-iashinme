@@ -4,9 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.iashinme.homework09.dto.AuthorDto;
 import ru.iashinme.homework09.dto.BookDto;
-import ru.iashinme.homework09.dto.GenreDto;
 import ru.iashinme.homework09.exception.ValidateException;
 import ru.iashinme.homework09.mapper.BookMapper;
 import ru.iashinme.homework09.model.Book;
@@ -19,8 +17,6 @@ import java.util.List;
 public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
-    private final AuthorService authorService;
-    private final GenreService genreService;
     private final BookMapper bookMapper;
 
     @Override
