@@ -4,13 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.iashinme.homework10.dto.AuthorDto;
 import ru.iashinme.homework10.dto.BookDto;
 import ru.iashinme.homework10.dto.GenreDto;
-import ru.iashinme.homework10.model.Book;
 import ru.iashinme.homework10.service.AuthorService;
 import ru.iashinme.homework10.service.BookService;
 import ru.iashinme.homework10.service.GenreService;
@@ -44,17 +41,5 @@ public class BookPageController {
         model.addAttribute("genres", genres);
 
         return "book";
-    }
-
-    @PostMapping("/books/edit")
-    public String save(Book book) {
-        bookService.save(book);
-        return "redirect:/books";
-    }
-
-    @PostMapping("/books/delete/{id}")
-    public String delete(@PathVariable("id") Long id) {
-        bookService.deleteById(id);
-        return "redirect:/books";
     }
 }

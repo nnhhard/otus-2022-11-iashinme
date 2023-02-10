@@ -23,41 +23,58 @@
             width: 50px;
         }
     </style>
+    <script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        function deleteBook(bookId, o) {
+            fetch("/api/v1/book/" + bookId, {
+                method: 'DELETE'
+            }).then(function () {
+                    let p = o.parentNode.parentNode;
+                    p.parentNode.removeChild(p);
+                }
+            )
+        }
+    </script>
+    <script>
+        $(function () {
+            $.get('/api/v1/book').done(function (books) {
+                books.forEach(function (book) {
+                    $('tbody').append(`
+                    <tr>
+                        <td>${book.id}</td>
+                        <td>${book.name}</td>
+                        <td>${book.author.surname} ${book.author.name} ${book.author.patronymic}</td>
+                        <td>${book.genre.name}</td>
+                        <td><a href="/books/edit?id=${book.id}">Edit book</a></td>
+                        <td><button type="button" onclick="deleteBook(${book.id}, this)" >Delete</button></td>
+                    </tr>
+                `)
+                });
+            })
+        });
+    </script>
 </head>
 <body>
-        <h3>Books:</h3>
+<h3>Books:</h3>
 
-        <table class = "books">
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Author</th>
-                <th>Genre</th>
-                <th>Edit</th>
-                <th>Delete</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="book : ${books}">
-                <td th:text="${book.id}">id</td>
-                <td><a th:text="${book.name}">Book name</a></td>
-                <td><a th:text="${book.author.surname} + ' ' + ${book.author.name} + ' ' + ${book.author.patronymic ?: ''}">Author</a></td>
-                <td th:text="${book.genre.name}">Book genre</td>
-                <td><a th:href="@{/books/edit(id=${book.id})}" href="book.html">Edit book</a></td>
-                <td>
-                    <form th:action="@{/books/delete/{id}(id=${book.id})}" th:method="post" action="books.html">
-                        <button type="submit"
-                                onclick="return confirm('Are you sure you want to delete this book?');">Delete
-                        </button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+<table class="books">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Author</th>
+        <th>Genre</th>
+        <th>Edit</th>
+        <th>Delete</th>
+    </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
 
-        <p>
-            <a th:href="@{/books/edit(id=-1)}" href="book.html">New</a>
-        </p>
+<p>
+    <a th:href="@{/books/edit(id=-1)}" href="book.html">New</a>
+</p>
 </body>
 </html>
+

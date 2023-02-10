@@ -21,6 +21,57 @@
             margin-top: 10px;
         }
     </style>
+    <script>
+        function saveBook() {
+            const savedPersonContainer = document.getElementById("saved-book")
+            const idInput = document.getElementById("book-id")
+            const nameInput = document.getElementById("book-name")
+            const authorInput = document.getElementById("author")
+            const genreInput = document.getElementById("genre")
+            let httpMethod = 'POST'
+            if (idInput.value > 0) {
+                httpMethod = 'PUT'
+            }
+
+            const book =
+                {
+                    id: idInput.value,
+                    name: nameInput.value,
+                    authorId: authorInput.value,
+                    genreId: genreInput.value
+                }
+            fetch("/api/v1/book", {
+                method: httpMethod,
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(book)
+            })
+
+                .then(rawResponse => rawResponse.json())
+                .then(json => savedPersonContainer.innerHTML = JSON.stringify(json, null, 4))
+                .then(function () {
+                        if (httpMethod === 'POST') {
+                            window.location.replace("/books")
+                        }
+                    }
+                )
+
+        }
+    </script>
+    <script>
+        function deleteBook() {
+            const idInput = document.getElementById("book-id")
+
+            fetch("/api/v1/book/" + idInput.value, {
+                method: 'DELETE'
+            }).then(function () {
+                    window.location.replace("/books");
+                }
+            )
+        }
+    </script>
 </head>
 <body>
 
@@ -29,8 +80,7 @@
 </div>
 
 
-<form id="edit-form" th:action="@{/books/edit(id=${book.id})}" th:method="post"
-      action="books.html">
+<form id="edit-form" th:method="post" action="books.html">
     <h1>Book Info:</h1>
 
     <div class="row">
@@ -66,17 +116,18 @@
     </div>
 
     <div class="row">
-        <button type="submit">Save</button>
+        <button type="button" onclick="saveBook()">Save</button>
     </div>
 </form>
 
-
-<form th:hidden="${book.id < 1}" th:action="@{/books/delete/{id}(id=${book.id})}" th:method="post" action="books.html">
+<form th:hidden="${book.id < 1}" action="books.html">
     <div class="row">
-        <button type="submit"
-                onclick="return confirm('Are you sure you want to delete this book?');">Delete
-        </button>
+        <button type="button" onclick="deleteBook()">Delete</button>
     </div>
 </form>
+
+<h3>Saved book:</h3>
+<pre id="saved-book"></pre>
+
 </body>
 </html>

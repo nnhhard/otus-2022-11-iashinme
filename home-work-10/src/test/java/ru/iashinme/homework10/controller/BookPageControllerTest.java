@@ -20,9 +20,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(BookPageController.class)
@@ -30,9 +28,6 @@ public class BookPageControllerTest {
 
     @Autowired
     private MockMvc mvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @MockBean
     private BookService bookService;
@@ -75,23 +70,6 @@ public class BookPageControllerTest {
         when(bookService.findAll()).thenReturn(List.of(EXPECTED_BOOK_DTO));
 
         mvc.perform(get("/books")).andExpect(status().isOk());
-    }
-
-    @Test
-    void shouldCorrectSaveBook() throws Exception {
-        when(bookService.save(EXPECTED_BOOK)).thenReturn(EXPECTED_BOOK_DTO);
-
-        String expectedResult = objectMapper.writeValueAsString(EXPECTED_BOOK_DTO);
-
-        mvc.perform(post("/books/edit").contentType(APPLICATION_JSON)
-                        .content(expectedResult))
-                .andExpect(status().is3xxRedirection());
-    }
-
-    @Test
-    void shouldCorrectDeleteBook() throws Exception {
-        mvc.perform(post("/books/delete/1"))
-                .andExpect(status().is3xxRedirection());
     }
 
     @Test
