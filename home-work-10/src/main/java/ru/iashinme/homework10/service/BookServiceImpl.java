@@ -5,7 +5,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.iashinme.homework10.dto.BookDto;
-import ru.iashinme.homework10.dto.BookSmallDto;
 import ru.iashinme.homework10.exception.ValidateException;
 import ru.iashinme.homework10.mapper.BookMapper;
 import ru.iashinme.homework10.model.Book;

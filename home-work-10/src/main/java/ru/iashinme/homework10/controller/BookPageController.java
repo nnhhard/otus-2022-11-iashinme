@@ -23,9 +23,7 @@ public class BookPageController {
     private final GenreService genreService;
 
     @GetMapping({"/", "/books"})
-    public String findAll(Model model) {
-        List<BookDto> books = bookService.findAll();
-        model.addAttribute("books", books);
+    public String findAll() {
         return "books";
     }
 
