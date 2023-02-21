@@ -9,6 +9,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import ru.iashinme.homework11.advice.GlobalExceptionHandler;
 import ru.iashinme.homework11.dto.AuthorDto;
 import ru.iashinme.homework11.mapper.AuthorMapper;
 import ru.iashinme.homework11.model.Author;
@@ -21,7 +22,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @WebFluxTest
-@ContextConfiguration(classes = {AuthorController.class})
+@ContextConfiguration(classes = {AuthorController.class, GlobalExceptionHandler.class})
 @DisplayName(" Контроллер для работы с Авторами должен ")
 public class AuthorControllerTest {
 
@@ -76,8 +77,7 @@ public class AuthorControllerTest {
     @Test
     @DisplayName("удалять автора по его id")
     public void deleteAuthorById() {
-        Mono<Boolean> monoFromStream = Mono.just(false);
-        when(bookRepository.existsBookByAuthor_Id((EXPECTED_AUTHOR.getId()))).thenReturn(monoFromStream);
+        when(bookRepository.existsBookByAuthor_Id((EXPECTED_AUTHOR.getId()))).thenReturn(Mono.just(false));
         when(authorRepository.deleteById(EXPECTED_AUTHOR.getId())).thenReturn(Mono.empty());
 
         webTestClient.delete()
@@ -85,6 +85,19 @@ public class AuthorControllerTest {
                 .exchange()
                 .expectStatus()
                 .isOk();
+    }
+
+    @Test
+    @DisplayName("не удалять автора, если существую книги с данным автором")
+    public void noDeleteAuthorById() {
+        when(bookRepository.existsBookByAuthor_Id((EXPECTED_AUTHOR.getId()))).thenReturn(Mono.just(Boolean.TRUE));
+
+        webTestClient.delete()
+                .uri("/api/v1/author/" + EXPECTED_AUTHOR.getId())
+                .exchange()
+                .expectStatus()
+                .isBadRequest()
+                .expectBody();
     }
 
     @Test
@@ -115,5 +128,18 @@ public class AuthorControllerTest {
                 .exchange()
                 .expectStatus()
                 .isOk();
+    }
+
+    @Test
+    @DisplayName("не обновлять не найденного автора")
+    public void noUpdateAuthorById() {
+        when(authorRepository.existsById(any(String.class))).thenReturn(Mono.just(Boolean.FALSE));
+
+        webTestClient.put()
+                .uri("/api/v1/author")
+                .bodyValue(EXPECTED_AUTHOR_DTO)
+                .exchange()
+                .expectStatus()
+                .isBadRequest();
     }
 }

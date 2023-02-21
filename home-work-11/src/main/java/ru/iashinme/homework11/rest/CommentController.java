@@ -28,6 +28,6 @@ public class CommentController {
 
     @DeleteMapping("/api/v1/book/{bookId}/comments")
     public Mono<Void> deleteAllCommentsForBook(@PathVariable String bookId) {
-        return commentRepository.deleteByBook_Id(bookId).flatMap(result -> Mono.empty());
+        return commentRepository.deleteByBook_Id(bookId);
     }
 }
