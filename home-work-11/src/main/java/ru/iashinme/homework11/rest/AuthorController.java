@@ -48,12 +48,12 @@ public class AuthorController {
     }
 
     @PutMapping("/api/v1/author")
-    public Mono<AuthorDto> updateAuthor(@RequestBody AuthorDto authorDto) {
+    public Mono<Void> updateAuthor(@RequestBody AuthorDto authorDto) {
         return authorRepository.existsById(authorDto.getId())
                 .flatMap(result -> Mono.justOrEmpty(!result ? null : true))
                 .switchIfEmpty(Mono.error(new RuntimeException("Author not found with id = " + authorDto.getId())))
                 .then(authorRepository.save(authorDto.toEntity()))
-                .then(bookRepository.updateAuthorInBook(authorDto.toEntity()))
-                .flatMap(__ -> Mono.just(authorDto));
+                .flatMap(bookRepository::updateAuthorInBook)
+                .flatMap(result -> Mono.empty());
     }
 }

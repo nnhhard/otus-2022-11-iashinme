@@ -60,10 +60,11 @@
             })
 
                 .then(rawResponse => rawResponse.json())
-                .then(json => savedPersonContainer.innerHTML = JSON.stringify(json, null, 4))
                 .then(function () {
                         if (httpMethod === 'POST') {
                             window.location.replace("/books")
+                        } else {
+                            savedPersonContainer.innerHTML = 'Book updated'
                         }
                     }
                 )
