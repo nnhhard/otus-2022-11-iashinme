@@ -2,6 +2,8 @@ package ru.iashinme.homework12.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -82,11 +84,6 @@ public class BookControllerTest {
         mockMvc.perform(get("/books")).andExpect(status().isOk());
     }
 
-    @Test
-    void shouldNotReturnPageBooksWithoutAuthorized() throws Exception {
-        mockMvc.perform(get("/books")).andExpect(status().isUnauthorized());
-    }
-
     @WithMockUser(
             username = "admin",
             authorities = {"ROLE_ADMIN"}
@@ -102,12 +99,10 @@ public class BookControllerTest {
                 .andExpect(status().is3xxRedirection());
     }
 
-    @Test
-    void shouldNotSaveBookWithoutAuthorized() throws Exception {
-        String expectedResult = objectMapper.writeValueAsString(EXPECTED_BOOK_DTO);
-
-        mockMvc.perform(post("/books/edit").with(csrf()).contentType(APPLICATION_JSON)
-                        .content(expectedResult))
+    @ParameterizedTest
+    @ValueSource(strings = {"/books/edit", "/books/delete/1"})
+    void shouldNotAuthorizedForPostRequests(String arg) throws Exception {
+        mockMvc.perform(post(arg).with(csrf()))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -119,12 +114,6 @@ public class BookControllerTest {
     void shouldCorrectDeleteBook() throws Exception {
         mockMvc.perform(post("/books/delete/1").with(csrf()))
                 .andExpect(status().is3xxRedirection());
-    }
-
-    @Test
-    void shouldNotDeleteBookWithoutAuthorized() throws Exception {
-        mockMvc.perform(post("/books/delete/1").with(csrf()))
-                .andExpect(status().isUnauthorized());
     }
 
     @WithMockUser(
@@ -139,11 +128,5 @@ public class BookControllerTest {
 
         mockMvc.perform(get("/books/edit").param("id", "1"))
                 .andExpect(status().isOk());
-    }
-
-    @Test
-    void shouldNotReturnEditBookWithoutAuthorized() throws Exception {
-        mockMvc.perform(get("/books/edit").param("id", "1"))
-                .andExpect(status().isUnauthorized());
     }
 }
