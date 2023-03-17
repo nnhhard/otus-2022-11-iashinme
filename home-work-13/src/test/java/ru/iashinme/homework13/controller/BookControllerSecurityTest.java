@@ -30,6 +30,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(SecurityConfiguration.class)
 public class BookControllerSecurityTest {
 
+    private final static String URL_BOOK_EDIT = "/books/edit";
+    private final static String URL_BOOK_DELETE = "/books/delete/1";
+    private final static String URL_BOOKS = "/books";
+
     @Autowired
     private MockMvc mvc;
 
@@ -57,18 +61,21 @@ public class BookControllerSecurityTest {
         var admin = user("user").roles("ADMIN");
 
         return Stream.of(
-                Arguments.of("/books/edit", post("/books/edit").with(csrf()), new ResultMatcher[]{status().is3xxRedirection(), redirectedUrl("http://localhost/login")}),
-                Arguments.of("/books/delete/1", post("/books/delete/1").with(csrf()), new ResultMatcher[]{status().is3xxRedirection(), redirectedUrl("http://localhost/login")}),
-                Arguments.of("/books", get("/books"), new ResultMatcher[]{status().is3xxRedirection(), redirectedUrl("http://localhost/login")}),
-                Arguments.of("/books/edit", get("/books/edit"), new ResultMatcher[]{status().is3xxRedirection(), redirectedUrl("http://localhost/login")}),
-                Arguments.of("/books/edit", post("/books/edit").with(csrf()).with(user), new ResultMatcher[]{status().isForbidden()}),
-                Arguments.of("/books/delete/1", post("/books/delete/1").with(csrf()).with(user), new ResultMatcher[]{status().isForbidden()}),
-                Arguments.of("/books/edit", get("/books/edit").with(user), new ResultMatcher[]{status().isForbidden()}),
-                Arguments.of("/books", get("/books").with(user), new ResultMatcher[]{status().isOk()}),
-                Arguments.of("/books/edit", post("/books/edit").with(csrf()).with(admin), new ResultMatcher[]{status().is3xxRedirection(), redirectedUrl("/books")}),
-                Arguments.of("/books/delete/1", post("/books/delete/1").with(csrf()).with(admin), new ResultMatcher[]{status().is3xxRedirection(), redirectedUrl("/books")}),
-                Arguments.of("/books/edit", get("/books/edit").param("id", "-1").with(admin), new ResultMatcher[]{status().isOk()}),
-                Arguments.of("/books", get("/books").with(admin), new ResultMatcher[]{status().isOk()})
+                Arguments.of(URL_BOOK_EDIT, post(URL_BOOK_EDIT).with(csrf()), new ResultMatcher[]{status().is3xxRedirection(), redirectedUrl("http://localhost/login")}),
+                Arguments.of(URL_BOOK_EDIT, post(URL_BOOK_EDIT).with(csrf()).with(user), new ResultMatcher[]{status().isForbidden()}),
+                Arguments.of(URL_BOOK_EDIT, post(URL_BOOK_EDIT).with(csrf()).with(admin), new ResultMatcher[]{status().is3xxRedirection(), redirectedUrl("/books")}),
+
+                Arguments.of(URL_BOOK_EDIT, get(URL_BOOK_EDIT), new ResultMatcher[]{status().is3xxRedirection(), redirectedUrl("http://localhost/login")}),
+                Arguments.of(URL_BOOK_EDIT, get(URL_BOOK_EDIT).with(user), new ResultMatcher[]{status().isForbidden()}),
+                Arguments.of(URL_BOOK_EDIT, get(URL_BOOK_EDIT).param("id", "-1").with(admin), new ResultMatcher[]{status().isOk()}),
+
+                Arguments.of(URL_BOOKS, get(URL_BOOKS), new ResultMatcher[]{status().is3xxRedirection(), redirectedUrl("http://localhost/login")}),
+                Arguments.of(URL_BOOKS, get(URL_BOOKS).with(user), new ResultMatcher[]{status().isOk()}),
+                Arguments.of(URL_BOOKS, get(URL_BOOKS).with(admin), new ResultMatcher[]{status().isOk()}),
+
+                Arguments.of(URL_BOOK_DELETE, post(URL_BOOK_DELETE).with(csrf()), new ResultMatcher[]{status().is3xxRedirection(), redirectedUrl("http://localhost/login")}),
+                Arguments.of(URL_BOOK_DELETE, post(URL_BOOK_DELETE).with(csrf()).with(user), new ResultMatcher[]{status().isForbidden()}),
+                Arguments.of(URL_BOOK_DELETE, post(URL_BOOK_DELETE).with(csrf()).with(admin), new ResultMatcher[]{status().is3xxRedirection(), redirectedUrl("/books")})
         );
     }
 }
