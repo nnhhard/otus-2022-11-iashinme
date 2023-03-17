@@ -5,8 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.iashinme.homework13.dto.AuthorDto;
@@ -15,13 +13,14 @@ import ru.iashinme.homework13.dto.GenreDto;
 import ru.iashinme.homework13.model.Author;
 import ru.iashinme.homework13.model.Book;
 import ru.iashinme.homework13.model.Genre;
-import ru.iashinme.homework13.security.SecurityConfiguration;
 import ru.iashinme.homework13.service.AuthorService;
 import ru.iashinme.homework13.service.BookService;
 import ru.iashinme.homework13.service.GenreService;
 
 import java.util.List;
+import java.util.Objects;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -32,14 +31,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(BookController.class)
-@Import(SecurityConfiguration.class)
 public class BookControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @MockBean
-    private UserDetailsService userService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -80,20 +75,19 @@ public class BookControllerTest {
             .author(EXPECTED_AUTHOR_DTO)
             .build();
 
-    @WithMockUser(
-            username = "admin",
-            authorities = {"ROLE_ADMIN"}
-    )
+    @WithMockUser
     @Test
     void shouldReturnPageBooks() throws Exception {
         when(bookService.findAll()).thenReturn(List.of(EXPECTED_BOOK_DTO));
-        mockMvc.perform(get("/books")).andExpect(status().isOk());
+        var result = mockMvc.perform(get("/books"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        var model = Objects.requireNonNull(result.getModelAndView()).getModel();
+        assertThat(model.get("books")).isEqualTo(List.of(EXPECTED_BOOK_DTO));
     }
 
-    @WithMockUser(
-            username = "admin",
-            authorities = {"ROLE_ADMIN"}
-    )
+    @WithMockUser
     @Test
     void shouldCorrectSaveBook() throws Exception {
         when(bookService.save(EXPECTED_BOOK)).thenReturn(EXPECTED_BOOK_DTO);
@@ -106,10 +100,7 @@ public class BookControllerTest {
                 .andExpect(redirectedUrl("/books"));
     }
 
-    @WithMockUser(
-            username = "admin",
-            authorities = {"ROLE_ADMIN"}
-    )
+    @WithMockUser
     @Test
     void shouldCorrectDeleteBook() throws Exception {
         mockMvc.perform(post("/books/delete/1").with(csrf()))
@@ -117,17 +108,21 @@ public class BookControllerTest {
                 .andExpect(redirectedUrl("/books"));
     }
 
-    @WithMockUser(
-            username = "admin",
-            authorities = {"ROLE_ADMIN"}
-    )
+    @WithMockUser
     @Test
     void shouldReturnEditBook() throws Exception {
         when(bookService.findById(any(Long.class))).thenReturn(EXPECTED_BOOK_DTO);
         when(authorService.findAll()).thenReturn(List.of(EXPECTED_AUTHOR_DTO));
         when(genreService.findAll()).thenReturn(List.of(EXPECTED_GENRE_DTO));
 
-        mockMvc.perform(get("/books/edit").param("id", "1"))
-                .andExpect(status().isOk());
+        var result = mockMvc.perform(get("/books/edit").param("id", "1"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        var model = Objects.requireNonNull(result.getModelAndView()).getModel();
+
+        assertThat(model.get("book")).isEqualTo(EXPECTED_BOOK_DTO);
+        assertThat(model.get("authors")).isEqualTo(List.of(EXPECTED_AUTHOR_DTO));
+        assertThat(model.get("genres")).isEqualTo(List.of(EXPECTED_GENRE_DTO));
     }
 }

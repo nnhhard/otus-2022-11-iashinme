@@ -20,6 +20,7 @@ import ru.iashinme.homework13.service.GenreService;
 import java.util.stream.Stream;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -46,37 +47,28 @@ public class BookControllerSecurityTest {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("generateHttpServletRequestBuilder")
-    void shouldNotAuthorizedStatusForRequestsWithoutAuthorized(String path, MockHttpServletRequestBuilder builder, ResultMatcher checkStatus, ResultMatcher checkRedirectedUrl) throws Exception {
+    void shouldCorrectStatusForRequestsWithDifferentUsers(String path, MockHttpServletRequestBuilder builder, ResultMatcher... matchers) throws Exception {
         mvc.perform(builder)
-                .andExpect(checkStatus)
-                .andExpect(checkRedirectedUrl);
+                .andExpectAll(matchers);
     }
 
     private static Stream<Arguments> generateHttpServletRequestBuilder() {
+        var user = user("user").roles("USER");
+        var admin = user("user").roles("ADMIN");
+
         return Stream.of(
-                Arguments.of("/books/edit", post("/books/edit").with(csrf()), status().is3xxRedirection(), redirectedUrl("http://localhost/login")),
-                Arguments.of("/books/delete/1", post("/books/delete/1").with(csrf()), status().is3xxRedirection(), redirectedUrl("http://localhost/login")),
-                Arguments.of("/books", get("/books"), status().is3xxRedirection(), redirectedUrl("http://localhost/login")),
-                Arguments.of("/books/edit", get("/books/edit"), status().is3xxRedirection(), redirectedUrl("http://localhost/login"))
+                Arguments.of("/books/edit", post("/books/edit").with(csrf()), new ResultMatcher[]{status().is3xxRedirection(), redirectedUrl("http://localhost/login")}),
+                Arguments.of("/books/delete/1", post("/books/delete/1").with(csrf()), new ResultMatcher[]{status().is3xxRedirection(), redirectedUrl("http://localhost/login")}),
+                Arguments.of("/books", get("/books"), new ResultMatcher[]{status().is3xxRedirection(), redirectedUrl("http://localhost/login")}),
+                Arguments.of("/books/edit", get("/books/edit"), new ResultMatcher[]{status().is3xxRedirection(), redirectedUrl("http://localhost/login")}),
+                Arguments.of("/books/edit", post("/books/edit").with(csrf()).with(user), new ResultMatcher[]{status().isForbidden()}),
+                Arguments.of("/books/delete/1", post("/books/delete/1").with(csrf()).with(user), new ResultMatcher[]{status().isForbidden()}),
+                Arguments.of("/books/edit", get("/books/edit").with(user), new ResultMatcher[]{status().isForbidden()}),
+                Arguments.of("/books", get("/books").with(user), new ResultMatcher[]{status().isOk()}),
+                Arguments.of("/books/edit", post("/books/edit").with(csrf()).with(admin), new ResultMatcher[]{status().is3xxRedirection(), redirectedUrl("/books")}),
+                Arguments.of("/books/delete/1", post("/books/delete/1").with(csrf()).with(admin), new ResultMatcher[]{status().is3xxRedirection(), redirectedUrl("/books")}),
+                Arguments.of("/books/edit", get("/books/edit").param("id", "-1").with(admin), new ResultMatcher[]{status().isOk()}),
+                Arguments.of("/books", get("/books").with(admin), new ResultMatcher[]{status().isOk()})
         );
     }
-
-    @WithMockUser(value = "spring", roles = "USER")
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("generateHttpServletRequestBuilderForbiddenWithUserRole")
-    public void shouldReturnForbiddenWithUserRole(String path, MockHttpServletRequestBuilder builder, ResultMatcher checkStatus) throws Exception {
-        mvc.perform(builder)
-                .andExpect(checkStatus);
-    }
-
-    private static Stream<Arguments> generateHttpServletRequestBuilderForbiddenWithUserRole() {
-        return Stream.of(
-                Arguments.of("/books/edit", post("/books/edit").with(csrf()), status().isForbidden()),
-                Arguments.of("/books/delete/1", post("/books/delete/1").with(csrf()), status().isForbidden()),
-                Arguments.of("/books/edit", get("/books/edit"), status().isForbidden()),
-                Arguments.of("/books", get("/books"), status().isOk())
-        );
-    }
-
-
 }

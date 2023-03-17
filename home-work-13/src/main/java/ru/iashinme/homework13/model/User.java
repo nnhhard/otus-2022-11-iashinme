@@ -16,6 +16,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "users")
+@NamedEntityGraph(name = "user-authorities", attributeNodes = @NamedAttributeNode("authorities"))
 public class User implements UserDetails {
 
     @Id
