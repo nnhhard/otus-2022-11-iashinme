@@ -14,11 +14,8 @@ public class GenreServiceImpl implements GenreService {
     final GenreRepository genreRepository;
 
     @Override
-    @Transactional
     public GenreSQL convert(Genre genre) {
-        return genreRepository.save(
-                new GenreSQL(genre.getName(), genre.getId())
-        );
+        return new GenreSQL(genre.getName(), genre.getId());
     }
 
     @Override

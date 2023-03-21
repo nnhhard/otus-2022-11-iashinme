@@ -14,11 +14,8 @@ public class AuthorServiceImpl implements AuthorService {
     private final AuthorRepository authorRepository;
 
     @Override
-    @Transactional
     public AuthorSQL convert(Author author) {
-        return authorRepository.save(
-                new AuthorSQL(author.getName(), author.getId())
-        );
+        return new AuthorSQL(author.getName(), author.getId());
     }
 
     @Override

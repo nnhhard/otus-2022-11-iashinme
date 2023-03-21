@@ -8,7 +8,6 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellMethodAvailability;
-import ru.iashinme.homework14.repository.h2.BookRepository;
 
 @ShellComponent
 @RequiredArgsConstructor
@@ -16,7 +15,6 @@ public class ShellController {
 
     private final JobLauncher jobLauncher;
     private final Job importCatalogueJob;
-    private final BookRepository bookRepository;
 
     @ShellMethod(value = "Start migration", key = {"sm", "start_migration"})
     @ShellMethodAvailability(value = "isPublishEventCommandAvailable")
