@@ -18,12 +18,4 @@ public class GenreSQL {
 
     @Column(name = "name", nullable = false)
     private String name;
-
-    @Column(name = "mongo_id")
-    private String mongoId;
-
-    public GenreSQL(String name, String mongoId) {
-        this.name = name;
-        this.mongoId = mongoId;
-    }
 }

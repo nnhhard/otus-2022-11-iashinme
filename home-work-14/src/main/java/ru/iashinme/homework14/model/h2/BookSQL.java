@@ -25,10 +25,4 @@ public class BookSQL {
     @ManyToOne(targetEntity = AuthorSQL.class, cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     @JoinColumn(name = "author_id", referencedColumnName = "id", nullable = false)
     private AuthorSQL author;
-
-    public BookSQL(String name, GenreSQL genre, AuthorSQL author) {
-        this.name = name;
-        this.author = author;
-        this.genre = genre;
-    }
 }

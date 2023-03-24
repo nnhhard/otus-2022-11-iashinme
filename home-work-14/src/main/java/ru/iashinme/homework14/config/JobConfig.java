@@ -13,8 +13,9 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.data.MongoItemReader;
 import org.springframework.batch.item.data.builder.MongoItemReaderBuilder;
-import org.springframework.batch.item.database.JpaItemWriter;
-import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
+import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
+import org.springframework.batch.item.database.JdbcBatchItemWriter;
+import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,11 +28,9 @@ import ru.iashinme.homework14.model.h2.GenreSQL;
 import ru.iashinme.homework14.model.mongo.Author;
 import ru.iashinme.homework14.model.mongo.Book;
 import ru.iashinme.homework14.model.mongo.Genre;
-import ru.iashinme.homework14.service.AuthorService;
-import ru.iashinme.homework14.service.BookService;
-import ru.iashinme.homework14.service.GenreService;
+import ru.iashinme.homework14.service.MigrateService;
 
-import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
 import java.util.HashMap;
 
 @Configuration
@@ -42,9 +41,12 @@ public class JobConfig {
 
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
+    private final DataSource dataSource;
+    private final MigrateService migrateService;
+    private final MongoTemplate template;
 
     @Bean
-    public MongoItemReader<Author> mongoAuthorReader(MongoTemplate template) {
+    public MongoItemReader<Author> mongoAuthorReader() {
         return new MongoItemReaderBuilder<Author>()
                 .name("mongoAuthorReader")
                 .template(template)
@@ -55,7 +57,7 @@ public class JobConfig {
     }
 
     @Bean
-    public MongoItemReader<Genre> mongoGenreReader(MongoTemplate template) {
+    public MongoItemReader<Genre> mongoGenreReader() {
         return new MongoItemReaderBuilder<Genre>()
                 .name("mongoGenreReader")
                 .template(template)
@@ -66,7 +68,7 @@ public class JobConfig {
     }
 
     @Bean
-    public MongoItemReader<Book> mongoBookReader(MongoTemplate template) {
+    public MongoItemReader<Book> mongoBookReader() {
         return new MongoItemReaderBuilder<Book>()
                 .name("mongoBookReader")
                 .template(template)
@@ -77,38 +79,44 @@ public class JobConfig {
     }
 
     @Bean
-    public ItemProcessor<Author, AuthorSQL> authorProcessor(AuthorService authorService) {
-        return authorService::convert;
+    public ItemProcessor<Author, AuthorSQL> authorProcessor() {
+        return migrateService::authorConvert;
     }
 
     @Bean
-    public ItemProcessor<Genre, GenreSQL> genreProcessor(GenreService genreService) {
-        return genreService::convert;
+    public ItemProcessor<Genre, GenreSQL> genreProcessor() {
+        return migrateService::genreConvert;
     }
 
     @Bean
-    public ItemProcessor<Book, BookSQL> bookProcessor(BookService bookService) {
-        return bookService::convert;
+    public ItemProcessor<Book, BookSQL> bookProcessor() {
+        return migrateService::bookConvert;
     }
 
     @Bean
-    public JpaItemWriter<AuthorSQL> jpaAuthorWriter(EntityManagerFactory entityManagerFactory) {
-        return new JpaItemWriterBuilder<AuthorSQL>()
-                .entityManagerFactory(entityManagerFactory)
+    public JdbcBatchItemWriter<AuthorSQL> jpaAuthorWriter() {
+        return new JdbcBatchItemWriterBuilder<AuthorSQL>()
+                .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
+                .sql("insert into AUTHORS (ID, NAME) values (:id, :name)")
+                .dataSource(dataSource)
                 .build();
     }
 
     @Bean
-    public JpaItemWriter<GenreSQL> jpaGenreWriter(EntityManagerFactory entityManagerFactory) {
-        return new JpaItemWriterBuilder<GenreSQL>()
-                .entityManagerFactory(entityManagerFactory)
+    public JdbcBatchItemWriter<GenreSQL> jpaGenreWriter() {
+        return new JdbcBatchItemWriterBuilder<GenreSQL>()
+                .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
+                .sql("insert into GENRES (ID, NAME) values (:id, :name)")
+                .dataSource(dataSource)
                 .build();
     }
 
     @Bean
-    public JpaItemWriter<BookSQL> jpaBookWriter(EntityManagerFactory entityManagerFactory) {
-        return new JpaItemWriterBuilder<BookSQL>()
-                .entityManagerFactory(entityManagerFactory)
+    public JdbcBatchItemWriter<BookSQL> jpaBookWriter() {
+        return new JdbcBatchItemWriterBuilder<BookSQL>()
+                .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
+                .sql("insert into BOOKS (ID, NAME, AUTHOR_ID, GENRE_ID) values (:id, :name, :author.id, :genre.id)")
+                .dataSource(dataSource)
                 .build();
     }
 
@@ -153,35 +161,40 @@ public class JobConfig {
     }
 
     @Bean
-    public Step convertAuthors(JpaItemWriter<AuthorSQL> jpaAuthorWriter, ItemReader<Author> mongoAuthorReader,
+    public Step convertAuthors(JdbcBatchItemWriter<AuthorSQL> authorWriter,
+                               ItemReader<Author> mongoAuthorReader,
                                ItemProcessor<Author, AuthorSQL> authorProcessor) {
         return stepBuilderFactory.get("convertAuthors")
                 .<Author, AuthorSQL>chunk(CHUNK_SIZE)
                 .reader(mongoAuthorReader)
                 .processor(authorProcessor)
-                .writer(jpaAuthorWriter)
+                .writer(authorWriter)
                 .build();
     }
 
     @Bean
-    public Step convertGenres(JpaItemWriter<GenreSQL> jpaGenreWriter, ItemReader<Genre> mongoGenreReader,
-                              ItemProcessor<Genre, GenreSQL> genreProcessor) {
+    public Step convertGenres(JdbcBatchItemWriter<GenreSQL> genreWriter,
+                              ItemReader<Genre> mongoGenreReader,
+                              ItemProcessor<Genre, GenreSQL> genreProcessor
+    ) {
         return stepBuilderFactory.get("convertGenres")
                 .<Genre, GenreSQL>chunk(CHUNK_SIZE)
                 .reader(mongoGenreReader)
                 .processor(genreProcessor)
-                .writer(jpaGenreWriter)
+                .writer(genreWriter)
                 .build();
     }
 
     @Bean
-    public Step convertBooks(JpaItemWriter<BookSQL> jpaGenreWriter, ItemReader<Book> mongoBookReader,
-                             ItemProcessor<Book, BookSQL> bookProcessor) {
+    public Step convertBooks(JdbcBatchItemWriter<BookSQL> bookWriter,
+                             ItemReader<Book> mongoBookReader,
+                             ItemProcessor<Book, BookSQL> bookProcessor
+    ) {
         return stepBuilderFactory.get("convertBooks")
                 .<Book, BookSQL>chunk(CHUNK_SIZE)
                 .reader(mongoBookReader)
                 .processor(bookProcessor)
-                .writer(jpaGenreWriter)
+                .writer(bookWriter)
                 .build();
     }
 }
