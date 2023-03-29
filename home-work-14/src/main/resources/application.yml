@@ -1,0 +1,49 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+
+  sql:
+    init:
+      mode: always
+      schema-locations: schema.sql
+
+  h2:
+    console:
+      path: /h2-console
+      settings:
+        web-allow-others: true
+
+  main:
+    allow-circular-references: true
+
+  batch:
+    job:
+      enabled: false
+
+  shell:
+    interactive:
+      enabled: true
+
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  data:
+    mongodb:
+      authentication-database: admin
+      username: mongoadmin
+      password: bdung
+      database: test
+      port: 27017
+      host: localhost
+
+mongock:
+  runner-type: "InitializingBean"
+  change-logs-scan-package:
+    - ru.iashinme.homework14.mongock.changelog
+
