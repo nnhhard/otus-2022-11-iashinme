@@ -4,4 +4,4 @@ target/
 *.iws
 *.iml
 *.ipr
-spring-shell.log
+*.log
