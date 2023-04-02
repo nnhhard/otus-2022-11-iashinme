@@ -28,14 +28,15 @@ spring:
 
 management:
   endpoints:
+    enabled-by-default: false
     web:
       exposure:
-        include: "*"
+        include: health,logfile
   endpoint:
     health:
+      enabled: true
       show-details: always
-  health:
-    defaults:
+    logfile:
       enabled: true
 
 checked:
