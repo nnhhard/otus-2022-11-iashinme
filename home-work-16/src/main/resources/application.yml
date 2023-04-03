@@ -3,7 +3,7 @@ spring:
     allow-circular-references: true
 
   jmx:
-    enabled: true
+    enabled: false
 
   h2:
     console:
@@ -31,7 +31,7 @@ management:
     enabled-by-default: false
     web:
       exposure:
-        include: health,logfile
+        include: health, logfile
   endpoint:
     health:
       enabled: true
