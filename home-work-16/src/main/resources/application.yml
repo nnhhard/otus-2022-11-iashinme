@@ -31,12 +31,14 @@ management:
     enabled-by-default: false
     web:
       exposure:
-        include: health, logfile
+        include: metrics, health, logfile
   endpoint:
     health:
       enabled: true
       show-details: always
     logfile:
+      enabled: true
+    metrics:
       enabled: true
 
 checked:
