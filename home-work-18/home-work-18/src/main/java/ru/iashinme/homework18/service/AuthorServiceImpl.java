@@ -1,6 +1,7 @@
 package ru.iashinme.homework18.service;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -61,7 +62,7 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     @Transactional(readOnly = true)
-    @HystrixCommand(fallbackMethod = "getAuthors")
+    @HystrixCommand(fallbackMethod = "getAuthors", commandProperties = @HystrixProperty(name = "execution.isolation.strategy", value = "SEMAPHORE"))
     public List<AuthorDto> findAll() {
         return authorMapper.entityToDto(authorRepository.findAll());
     }

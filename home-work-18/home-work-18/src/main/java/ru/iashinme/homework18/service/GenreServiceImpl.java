@@ -1,6 +1,7 @@
 package ru.iashinme.homework18.service;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -59,9 +60,8 @@ public class GenreServiceImpl implements GenreService {
 
     @Override
     @Transactional(readOnly = true)
-    @HystrixCommand(fallbackMethod = "getGenres")
+    @HystrixCommand(fallbackMethod = "getGenres", commandProperties = @HystrixProperty(name = "execution.isolation.strategy", value = "SEMAPHORE"))
     public List<GenreDto> findAll() {
-
         return genreRepository.findAll().stream().map(genreMapper::entityToDto).collect(Collectors.toList());
     }
 

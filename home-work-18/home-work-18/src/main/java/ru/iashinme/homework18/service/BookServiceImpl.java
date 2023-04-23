@@ -1,6 +1,7 @@
 package ru.iashinme.homework18.service;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -77,7 +78,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional(readOnly = true)
-    @HystrixCommand(fallbackMethod = "getBooks")
+    @HystrixCommand(fallbackMethod = "getBooks", commandProperties = @HystrixProperty(name = "execution.isolation.strategy", value = "SEMAPHORE"))
     public List<BookDto> findAll() {
         return bookMapper.entityToDto(bookRepository.findAll());
     }
