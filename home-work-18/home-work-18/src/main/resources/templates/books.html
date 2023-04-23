@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>List of all books</title>
+    <style>
+        body {
+            padding: 50px;
+        }
+        .books {
+            border: 1px solid steelblue;
+            width: 300px;
+            border-collapse: collapse;
+        }
+        .books tr td, th {
+            padding: 5px;
+            border: 1px solid steelblue;
+        }
+        .books td:last-child, td:first-child {
+            width: 50px;
+        }
+    </style>
+    <script>
+        function load() {
+            let table = document.getElementById('books-tbody')
+            let html = ""
+
+            fetch('/api/v1/book')
+                .then(response => response.json())
+                .then(books => books.forEach(book => html += `
+                    <tr>
+                        <td>${book.id}</td>
+                        <td>${book.name}</td>
+                        <td>${book.author.surname} ${book.author.name} ${book.author.patronymic}</td>
+                        <td>${book.genre.name}</td>
+                        <td><a href="/books/edit?id=${book.id}">Edit book</a></td>
+                    </tr>
+                `))
+                .then(function () {
+                    table.innerHTML = html
+                })
+        }
+        window.onload = load
+    </script>
+</head>
+<body>
+<h3>Books:</h3>
+
+<table class="books" id="foo">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Author</th>
+        <th>Genre</th>
+        <th>Edit</th>
+    </tr>
+    </thead>
+    <tbody id="books-tbody">
+    </tbody>
+</table>
+
+<p>
+    <a th:href="@{/books/edit(id=-1)}" href="book.html">New</a>
+</p>
+</body>
+</html>
+
