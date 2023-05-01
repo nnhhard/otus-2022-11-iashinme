@@ -1,0 +1,14 @@
+spring:
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+
+  flyway:
+    schemas: [ 'blog' ]
+    table: schema_version
+    baseline-on-migrate: true
+    validate-on-migrate: true
+    enabled: true
