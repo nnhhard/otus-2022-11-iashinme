@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class UserMapper {
+public class UserSmallDtoMapper {
     public List<UserSmallDto> entityToDto(List<User> users) {
         return users.stream().map(this::entityToDto)
                 .collect(Collectors.toList());

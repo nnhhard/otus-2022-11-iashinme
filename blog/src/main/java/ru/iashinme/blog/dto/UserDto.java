@@ -19,4 +19,5 @@ public class UserDto {
     private String fullName;
     private String email;
     private Set<Authority> authorities;
+    private boolean enabled;
 }

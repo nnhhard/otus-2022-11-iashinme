@@ -12,7 +12,7 @@ import ru.iashinme.blog.dto.RegistrationDto;
 import ru.iashinme.blog.dto.UserDto;
 import ru.iashinme.blog.dto.UserSmallDto;
 import ru.iashinme.blog.exception.ValidateException;
-import ru.iashinme.blog.mapper.UserMapper;
+import ru.iashinme.blog.mapper.UserSmallDtoMapper;
 import ru.iashinme.blog.model.User;
 import ru.iashinme.blog.repository.AuthorityRepository;
 import ru.iashinme.blog.repository.UserRepository;
@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
     private final AuthorityRepository authorityRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
-    private final UserMapper userMapper;
+    private final UserSmallDtoMapper userSmallDtoMapper;
 
 
     @Override
@@ -56,6 +56,7 @@ public class UserServiceImpl implements UserService {
                 .fullName(user.getFullName())
                 .email(user.getEmail())
                 .authorities(user.getAuthorities())
+                .enabled(user.isEnabled())
                 .build();
     }
 
@@ -98,7 +99,7 @@ public class UserServiceImpl implements UserService {
                 () -> new ValidateException("User not found!")
         );
 
-        return userMapper.entityToDto(user);
+        return userSmallDtoMapper.entityToDto(user);
     }
 
     @Override

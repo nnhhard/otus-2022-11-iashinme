@@ -31,6 +31,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/api/v1/technology").hasAnyAuthority("ROLE_ADMIN")
                 .antMatchers(HttpMethod.PUT, "/api/v1/technology").hasAnyAuthority("ROLE_ADMIN")
                 .antMatchers(HttpMethod.DELETE).hasAnyAuthority("ROLE_ADMIN")
+                .antMatchers("/api/v1/security/**").hasAnyAuthority("ROLE_SECURITY")
 
 
                 .anyRequest().authenticated()

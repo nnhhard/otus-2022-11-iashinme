@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class PostMapper {
 
     private final TechnologyMapper technologyMapper;
-    private final UserMapper userMapper;
+    private final UserSmallDtoMapper userSmallDtoMapper;
 
     public List<PostDto> entityToDto(List<Post> posts) {
         return posts.stream().map(this::entityToDto)
@@ -27,7 +27,7 @@ public class PostMapper {
                 .title(post.getTitle())
                 .text(post.getText())
                 .technology(technologyMapper.entityToDto(post.getTechnology()))
-                .author(userMapper.entityToDto(post.getAuthor()))
+                .author(userSmallDtoMapper.entityToDto(post.getAuthor()))
                 .build();
     }
 }

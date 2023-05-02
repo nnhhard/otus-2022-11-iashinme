@@ -17,12 +17,13 @@ import ru.iashinme.blog.repository.CommentRepository;
 import ru.iashinme.blog.repository.PostRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @DisplayName("Сервис для работы с комментариями ")
 @SpringBootTest(classes = CommentServiceImpl.class)
@@ -55,11 +56,6 @@ public class CommentServiceImplTest {
             .text("text")
             .post(POST)
             .build();
-    private final static CommentRequestDto REQUEST_COMMENT_DTO = CommentRequestDto.builder()
-            .postId(-1L)
-            .text("text")
-            .build();
-
     private final static CommentDto EXPECTED_COMMENT_DTO = CommentDto.builder()
             .time(LocalDateTime.now())
             .authorFullName(USER.getFullName())
@@ -69,11 +65,16 @@ public class CommentServiceImplTest {
     @Test
     @DisplayName("корректно сохранять комментарий")
     public void shouldHaveCorrectSaveComment() {
+        CommentRequestDto commentRequestDto = CommentRequestDto.builder()
+                .postId(-1L)
+                .text("text")
+                .build();
+
         when(postRepository.findById(any())).thenReturn(Optional.of(POST));
         when(commentRepository.save(any())).thenReturn(COMMENT);
         when(commentMapper.entityToDto(COMMENT)).thenReturn(EXPECTED_COMMENT_DTO);
 
-        var actualCommentDto = commentService.save(REQUEST_COMMENT_DTO, USER);
+        var actualCommentDto = commentService.save(commentRequestDto, USER);
 
         assertThat(actualCommentDto)
                 .isEqualTo(EXPECTED_COMMENT_DTO);
@@ -82,15 +83,16 @@ public class CommentServiceImplTest {
     @Test
     @DisplayName("корректно изменять комментарий")
     public void shouldHaveCorrectUpdateComment() {
+        CommentRequestDto commentRequestDto = CommentRequestDto.builder()
+                .postId(-1L)
+                .text("text")
+                .build();
+
         when(commentRepository.findById(any())).thenReturn(Optional.of(COMMENT));
+        when(commentRepository.save(any())).thenReturn(COMMENT);
+        when(commentMapper.entityToDto(COMMENT)).thenReturn(EXPECTED_COMMENT_DTO);
 
-        Comment updateComment = COMMENT;
-        updateComment.setText("new text");
-
-        when(commentRepository.save(any())).thenReturn(updateComment);
-        when(commentMapper.entityToDto(updateComment)).thenReturn(EXPECTED_COMMENT_DTO);
-
-        var actualCommentDto = commentService.edit(REQUEST_COMMENT_DTO, USER);
+        var actualCommentDto = commentService.edit(commentRequestDto, USER);
 
         assertThat(actualCommentDto)
                 .isEqualTo(EXPECTED_COMMENT_DTO);
@@ -99,6 +101,11 @@ public class CommentServiceImplTest {
     @Test
     @DisplayName("корректно выкидывать исключение при попытки изменить не свой комментарий")
     public void shouldHaveCorrectReturnExceptionByUpdateComment() {
+        CommentRequestDto commentRequestDto = CommentRequestDto.builder()
+                .postId(-1L)
+                .text("text")
+                .build();
+
         when(commentRepository.findById(any())).thenReturn(Optional.of(COMMENT));
 
         User otherUser = User.builder()
@@ -106,7 +113,7 @@ public class CommentServiceImplTest {
                 .build();
 
 
-        assertThatThrownBy(() -> commentService.edit(REQUEST_COMMENT_DTO, otherUser))
+        assertThatThrownBy(() -> commentService.edit(commentRequestDto, otherUser))
                 .isInstanceOf(ValidateException.class)
                 .hasMessageContaining("You are not the author of the comment!");
     }
@@ -114,7 +121,12 @@ public class CommentServiceImplTest {
     @Test
     @DisplayName("корректно выкидывать исключение при попытки создать новый комментарий к несуществующему посту")
     public void shouldHaveCorrectReturnExceptionBySaveCommentWithPostNotExist() {
-        assertThatThrownBy(() -> commentService.save(REQUEST_COMMENT_DTO, USER))
+        CommentRequestDto commentRequestDto = CommentRequestDto.builder()
+                .postId(-1L)
+                .text("text")
+                .build();
+
+        assertThatThrownBy(() -> commentService.save(commentRequestDto, USER))
                 .isInstanceOf(ValidateException.class)
                 .hasMessageContaining("Post not found!");
     }
@@ -122,9 +134,42 @@ public class CommentServiceImplTest {
     @Test
     @DisplayName("корректно выкидывать исключение при попытки изменить несуществующий комментарий")
     public void shouldHaveCorrectReturnExceptionByUpdateNotFoundComment() {
-        assertThatThrownBy(() -> commentService.edit(REQUEST_COMMENT_DTO, USER))
+        CommentRequestDto commentRequestDto = CommentRequestDto.builder()
+                .postId(-1L)
+                .text("text")
+                .build();
+
+        assertThatThrownBy(() -> commentService.edit(commentRequestDto, USER))
                 .isInstanceOf(ValidateException.class)
                 .hasMessageContaining("Comment not found!");
     }
 
+    @Test
+    @DisplayName("корректно удалять комментарий")
+    public void shouldHaveCorrectDeleteComment() {
+        commentService.delete(-1L);
+
+        verify(commentRepository, times(1)).deleteById(-1L);
+    }
+
+    @Test
+    @DisplayName("корректно находить комментарий по id")
+    public void shouldHaveCorrectFindCommentById() {
+        when(commentRepository.findById(any())).thenReturn(Optional.of(COMMENT));
+        when(commentMapper.entityToDto(COMMENT)).thenReturn(EXPECTED_COMMENT_DTO);
+
+        var comment = commentService.findById(COMMENT.getId());
+
+        assertThat(comment).isEqualTo(EXPECTED_COMMENT_DTO);
+    }
+
+    @Test
+    @DisplayName("корректно находить комментарий по id поста")
+    public void shouldHaveCorrectFindCommentByPostId() {
+        when(commentRepository.findByPostId(-1L)).thenReturn(List.of(EXPECTED_COMMENT_DTO));
+
+        var comments = commentService.findAllByPostId(-1L);
+
+        assertThat(comments).isEqualTo(List.of(EXPECTED_COMMENT_DTO));
+    }
 }

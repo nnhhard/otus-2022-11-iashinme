@@ -3,7 +3,6 @@ package ru.iashinme.blog.service;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.iashinme.blog.dto.PostDto;
@@ -112,7 +111,6 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasRole('ADMIN')")
     public void delete(Long id) {
         postRepository.deleteById(id);
     }

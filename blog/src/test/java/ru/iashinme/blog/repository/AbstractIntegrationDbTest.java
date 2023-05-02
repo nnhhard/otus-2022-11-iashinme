@@ -28,7 +28,6 @@ public abstract class AbstractIntegrationDbTest {
                 .withReuse(true);
     }
 
-
     @DynamicPropertySource
     public static void startPostgresContainer(DynamicPropertyRegistry registry) {
         postgresqlContainer.start();
