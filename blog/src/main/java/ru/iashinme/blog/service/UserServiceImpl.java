@@ -10,9 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.iashinme.blog.dto.AuthDto;
 import ru.iashinme.blog.dto.RegistrationDto;
 import ru.iashinme.blog.dto.UserDto;
-import ru.iashinme.blog.dto.UserSmallDto;
 import ru.iashinme.blog.exception.ValidateException;
-import ru.iashinme.blog.mapper.UserSmallDtoMapper;
+import ru.iashinme.blog.mapper.UserMapper;
 import ru.iashinme.blog.model.User;
 import ru.iashinme.blog.repository.AuthorityRepository;
 import ru.iashinme.blog.repository.UserRepository;
@@ -21,7 +20,6 @@ import ru.iashinme.blog.security.JwtTokenProvider;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Objects;
-import java.util.Set;
 
 import static org.apache.logging.log4j.util.Strings.isEmpty;
 
@@ -34,7 +32,7 @@ public class UserServiceImpl implements UserService {
     private final AuthorityRepository authorityRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
-    private final UserSmallDtoMapper userSmallDtoMapper;
+    private final UserMapper userMapper;
 
 
     @Override
@@ -49,15 +47,7 @@ public class UserServiceImpl implements UserService {
         cookie.setMaxAge(365 * 24 * 60 * 60);
         response.addCookie(cookie);
 
-        return UserDto
-                .builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .fullName(user.getFullName())
-                .email(user.getEmail())
-                .authorities(user.getAuthorities())
-                .enabled(user.isEnabled())
-                .build();
+        return userMapper.entityToDto(user);
     }
 
     @Override
@@ -74,11 +64,8 @@ public class UserServiceImpl implements UserService {
                 .password(passwordEncoder.encode(registrationDto.getPassword()))
                 .fullName(registrationDto.getFullName())
                 .email(registrationDto.getEmail())
-                .accountNonExpired(true)
-                .accountNonLocked(true)
-                .credentialsNonExpired(true)
                 .enabled(true)
-                .authorities(Set.of(authorityRepository.findByAuthority("ROLE_USER")))
+                .authority(authorityRepository.findByAuthority("ROLE_USER"))
                 .build();
 
         userRepository.save(user);
@@ -94,12 +81,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public UserSmallDto findById(Long userId) {
+    public UserDto findById(Long userId) {
         var user =  userRepository.findById(userId).orElseThrow(
                 () -> new ValidateException("User not found!")
         );
 
-        return userSmallDtoMapper.entityToDto(user);
+        return userMapper.entityToDto(user);
     }
 
     @Override
@@ -108,6 +95,12 @@ public class UserServiceImpl implements UserService {
         cookie.setPath("/");
         cookie.setMaxAge(0);
         response.addCookie(cookie);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existAuthority() {
+        return authorityRepository.existsBy();
     }
 
     private void validate(RegistrationDto registrationDto) {

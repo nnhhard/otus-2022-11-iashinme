@@ -15,5 +15,5 @@ public class PostDto {
     private String title;
     private String text;
     private TechnologyDto technology;
-    private UserSmallDto author;
+    private UserDto author;
 }

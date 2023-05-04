@@ -1,15 +1,13 @@
 package ru.iashinme.blog.service;
 
 import lombok.NonNull;
+import ru.iashinme.blog.dto.CustomUserDetails;
 import ru.iashinme.blog.dto.PostDto;
 import ru.iashinme.blog.dto.PostRequestDto;
-import ru.iashinme.blog.model.User;
 
 import java.util.List;
 
 public interface PostService {
-
-    Long count();
 
     List<PostDto> findAll();
 
@@ -21,8 +19,8 @@ public interface PostService {
 
     PostDto findById(Long id);
 
-    PostDto save(PostRequestDto postRequestDto, User user);
-    PostDto edit(PostRequestDto postRequestDto, User user);
+    PostDto save(PostRequestDto postRequestDto, CustomUserDetails user);
+    PostDto edit(PostRequestDto postRequestDto, CustomUserDetails user);
 
     void delete(Long id);
 }

@@ -5,11 +5,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.iashinme.blog.dto.CommentDto;
 import ru.iashinme.blog.dto.CommentRequestDto;
+import ru.iashinme.blog.dto.CustomUserDetails;
 import ru.iashinme.blog.exception.ValidateException;
 import ru.iashinme.blog.mapper.CommentMapper;
 import ru.iashinme.blog.model.Comment;
 import ru.iashinme.blog.model.Post;
-import ru.iashinme.blog.model.User;
 import ru.iashinme.blog.repository.CommentRepository;
 import ru.iashinme.blog.repository.PostRepository;
 
@@ -29,7 +29,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public
-    CommentDto save(CommentRequestDto commentRequestDto, User user) {
+    CommentDto save(CommentRequestDto commentRequestDto, CustomUserDetails user) {
 
         Post post = postRepository.findById(commentRequestDto.getPostId()).orElseThrow(
                 () -> new ValidateException("Post not found!")
@@ -38,7 +38,7 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = Comment
                     .builder()
                     .text(commentRequestDto.getText())
-                    .author(user)
+                    .author(user.toUser())
                     .post(post)
                     .time(now())
                     .build();
@@ -47,7 +47,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentDto edit(CommentRequestDto commentRequestDto, User user) {
+    public CommentDto edit(CommentRequestDto commentRequestDto, CustomUserDetails user) {
 
         var comment = commentRepository.findById(commentRequestDto.getId())
                 .orElseThrow(

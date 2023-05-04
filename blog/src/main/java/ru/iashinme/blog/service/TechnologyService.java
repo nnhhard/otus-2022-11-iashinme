@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface TechnologyService {
 
-    Long count();
+    boolean existsTechnology();
 
     List<TechnologyDto> findAll();
 

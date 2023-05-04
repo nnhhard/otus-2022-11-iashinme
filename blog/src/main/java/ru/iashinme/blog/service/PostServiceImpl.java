@@ -5,13 +5,13 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.iashinme.blog.dto.CustomUserDetails;
 import ru.iashinme.blog.dto.PostDto;
 import ru.iashinme.blog.dto.PostRequestDto;
 import ru.iashinme.blog.dto.TechnologyDto;
 import ru.iashinme.blog.exception.ValidateException;
 import ru.iashinme.blog.mapper.PostMapper;
 import ru.iashinme.blog.model.Post;
-import ru.iashinme.blog.model.User;
 import ru.iashinme.blog.repository.PostRepository;
 
 import java.util.List;
@@ -24,12 +24,6 @@ public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final TechnologyService technologyService;
     private final PostMapper postMapper;
-
-    @Override
-    @Transactional(readOnly = true)
-    public Long count() {
-        return postRepository.count();
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -67,7 +61,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public PostDto save(PostRequestDto postRequestDto, User user) {
+    public PostDto save(PostRequestDto postRequestDto, CustomUserDetails user) {
         validate(postRequestDto);
 
         if(postRequestDto.getId() != null) {
@@ -80,7 +74,7 @@ public class PostServiceImpl implements PostService {
                     .builder()
                     .title(postRequestDto.getTitle())
                     .text(postRequestDto.getText())
-                    .author(user)
+                    .author(user.toUser())
                     .technology(technology.toEntity())
                     .build();
 
@@ -89,7 +83,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public PostDto edit(PostRequestDto postRequestDto, User user) {
+    public PostDto edit(PostRequestDto postRequestDto, CustomUserDetails user) {
         validate(postRequestDto);
 
         Post post = postRepository.findById(postRequestDto.getId()).orElseThrow(

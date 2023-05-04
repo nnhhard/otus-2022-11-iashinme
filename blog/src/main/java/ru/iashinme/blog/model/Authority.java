@@ -7,8 +7,11 @@ import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
+import static javax.persistence.GenerationType.IDENTITY;
 
 @Getter
 @Setter
@@ -18,6 +21,7 @@ import javax.persistence.Table;
 @Table(name = "authorities", schema = "blog")
 public class Authority implements GrantedAuthority {
     @Id
+    @GeneratedValue(strategy = IDENTITY)
     private Long id;
     private String authority;
 }

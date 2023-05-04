@@ -38,8 +38,6 @@ public class TechnologyServiceImplTest {
             .name("cpp")
             .build();
 
-    private static final long EXPECTED_TECHNOLOGY_COUNT = 1;
-
     private static final TechnologyDto EXPECTED_TECHNOLOGY_DTO = TechnologyDto
             .builder()
             .id(EXPECTED_TECHNOLOGY.getId())
@@ -54,16 +52,6 @@ public class TechnologyServiceImplTest {
         assertThatThrownBy(() -> technologyService.save(technologyDto))
                 .isInstanceOf(ValidateException.class)
                 .hasMessageContaining("Technology name is null or empty!");
-    }
-
-    @DisplayName("возвращать ожидаемое количество технологий")
-    @Test
-    void shouldReturnExpectedTechnologyCount() {
-        when(technologyRepository.count()).thenReturn(EXPECTED_TECHNOLOGY_COUNT);
-        long actualTechnologyCount = technologyService.count();
-
-        assertThat(actualTechnologyCount)
-                .isEqualTo(EXPECTED_TECHNOLOGY_COUNT);
     }
 
     @DisplayName("возвращать ожидаемый список технологий")

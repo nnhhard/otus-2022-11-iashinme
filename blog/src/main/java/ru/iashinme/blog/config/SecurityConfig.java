@@ -26,15 +26,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/api/v1/login/**", "/api/v1/registration/**", "/actuator/**").permitAll()
-
+                .antMatchers(
+                        "/api/v1/login/**",
+                        "/api/v1/registration/**",
+                        "/actuator/**",
+                        "/swagger**",
+                        "/swagger-ui/**",
+                        "/v3/api-docs/**")
+                .permitAll()
+                .antMatchers("/api/v1/logout").authenticated()
+                .antMatchers(HttpMethod.DELETE).hasAnyAuthority("ROLE_ADMIN")
                 .antMatchers(HttpMethod.POST, "/api/v1/technology").hasAnyAuthority("ROLE_ADMIN")
                 .antMatchers(HttpMethod.PUT, "/api/v1/technology").hasAnyAuthority("ROLE_ADMIN")
-                .antMatchers(HttpMethod.DELETE).hasAnyAuthority("ROLE_ADMIN")
                 .antMatchers("/api/v1/security/**").hasAnyAuthority("ROLE_SECURITY")
 
-
-                .anyRequest().authenticated()
+                .anyRequest()
+                .authenticated()
                 .and()
                 .apply(jwtConfigurer);
     }

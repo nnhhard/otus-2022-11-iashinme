@@ -5,4 +5,5 @@ import ru.iashinme.blog.model.Technology;
 
 public interface TechnologyRepository extends JpaRepository<Technology, Long> {
 
+    boolean existsBy();
 }

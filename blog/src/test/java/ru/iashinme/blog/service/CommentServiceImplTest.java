@@ -7,12 +7,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import ru.iashinme.blog.dto.CommentDto;
 import ru.iashinme.blog.dto.CommentRequestDto;
+import ru.iashinme.blog.dto.CustomUserDetails;
 import ru.iashinme.blog.exception.ValidateException;
 import ru.iashinme.blog.mapper.CommentMapper;
+import ru.iashinme.blog.model.Authority;
 import ru.iashinme.blog.model.Comment;
 import ru.iashinme.blog.model.Post;
 import ru.iashinme.blog.model.Technology;
-import ru.iashinme.blog.model.User;
 import ru.iashinme.blog.repository.CommentRepository;
 import ru.iashinme.blog.repository.PostRepository;
 
@@ -41,18 +42,19 @@ public class CommentServiceImplTest {
     @MockBean
     private CommentMapper commentMapper;
 
-    private static final User USER = User.builder().id(-1L).email("email").fullName("fullname").build();
+    private static final CustomUserDetails USER = CustomUserDetails.builder().id(-1L).email("email")
+            .authorities(List.of(new Authority(-1L, "ROLE_USER"))).fullName("fullname").build();
     private final static Post POST = Post.builder()
             .text("text")
             .technology(Technology.builder().id(-1L).name("name").build())
             .title("title")
-            .author(USER)
+            .author(USER.toUser())
             .build();
 
     private final static Comment COMMENT = Comment.builder()
             .id(-1L)
             .time(LocalDateTime.now())
-            .author(USER)
+            .author(USER.toUser())
             .text("text")
             .post(POST)
             .build();
@@ -108,7 +110,7 @@ public class CommentServiceImplTest {
 
         when(commentRepository.findById(any())).thenReturn(Optional.of(COMMENT));
 
-        User otherUser = User.builder()
+        CustomUserDetails otherUser = CustomUserDetails.builder()
                 .id(-2L)
                 .build();
 

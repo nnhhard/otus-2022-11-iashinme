@@ -32,6 +32,13 @@ spring:
 
 management:
   endpoints:
+    enabled-by-default: false
     web:
       exposure:
-        include: health,prometheus,hystrix.stream
+        include: metrics, health
+  endpoint:
+    health:
+      enabled: true
+      show-details: always
+    metrics:
+      enabled: true

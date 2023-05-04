@@ -1,5 +1,6 @@
 package ru.iashinme.blog.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,7 @@ public class AuthController {
 
     private final UserService userService;
 
+    @Operation(summary = "Authentication user")
     @PostMapping(value = "/login")
     public ResponseEntity<?> loginUser(@RequestBody AuthDto authDto, HttpServletResponse response) {
         try {
@@ -33,6 +35,7 @@ public class AuthController {
         }
     }
 
+    @Operation(summary = "Registration user")
     @PostMapping(value = "/registration")
     public ResponseEntity<?> registrationUser(@RequestBody RegistrationDto registrationDto) {
         try {
@@ -44,6 +47,7 @@ public class AuthController {
         }
     }
 
+    @Operation(summary = "Logout user")
     @DeleteMapping(value = "/logout")
     public void removeToken(HttpServletResponse response) {
         userService.removeToken(response);

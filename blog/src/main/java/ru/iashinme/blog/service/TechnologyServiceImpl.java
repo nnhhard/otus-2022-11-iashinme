@@ -20,8 +20,8 @@ public class TechnologyServiceImpl implements TechnologyService {
 
     @Override
     @Transactional(readOnly = true)
-    public Long count() {
-        return technologyRepository.count();
+    public boolean existsTechnology() {
+        return technologyRepository.existsBy();
     }
 
     @Override

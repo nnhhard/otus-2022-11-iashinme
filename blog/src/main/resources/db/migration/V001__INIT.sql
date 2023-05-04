@@ -1,3 +1,10 @@
+drop table if exists blog.authorities;
+CREATE TABLE blog.authorities
+(
+    id        BIGSERIAL primary key,
+    authority VARCHAR(50) NOT NULL UNIQUE
+);
+
 drop table if exists blog.users;
 CREATE TABLE blog.users
 (
@@ -9,20 +16,9 @@ CREATE TABLE blog.users
     enabled                 BOOLEAN      NOT NULL DEFAULT true,
     account_non_expired     BOOLEAN      NOT NULL DEFAULT true,
     account_non_locked      BOOLEAN      NOT NULL DEFAULT true,
-    credentials_non_expired BOOLEAN      NOT NULL DEFAULT true
+    credentials_non_expired BOOLEAN      NOT NULL DEFAULT true,
+    authority_id               BIGINT references blog.authorities (id)
 );
-
-drop table if exists blog.authorities;
-CREATE TABLE blog.authorities
-(
-    id        BIGSERIAL primary key,
-    user_id   bigint      NOT NULL,
-    authority VARCHAR(50) NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES blog.users (id)
-);
-
-CREATE UNIQUE INDEX ix_auth_user
-    on blog.authorities (user_id, authority);
 
 DROP TABLE IF EXISTS BLOG.TECHNOLOGIES;
 CREATE TABLE BLOG.TECHNOLOGIES
@@ -47,9 +43,9 @@ DROP TABLE IF EXISTS BLOG.COMMENTS;
 CREATE TABLE BLOG.COMMENTS
 (
     ID        BIGSERIAL PRIMARY KEY,
-    TEXT      TEXT   NOT NULL,
-    AUTHOR_ID BIGINT NOT NULL,
-    POST_ID   BIGINT NOT NULL,
+    TEXT      TEXT                                               NOT NULL,
+    AUTHOR_ID BIGINT                                             NOT NULL,
+    POST_ID   BIGINT                                             NOT NULL,
     TIME      TIMESTAMP WITH TIME ZONE default current_timestamp NOT NULL,
     FOREIGN KEY (AUTHOR_ID) REFERENCES BLOG.USERS (ID),
     FOREIGN KEY (POST_ID) REFERENCES BLOG.POSTS (ID)
@@ -74,10 +70,16 @@ VALUES ('python'),
        ('typescript'),
        ('other');
 
-INSERT INTO blog.users (username, password, full_name, email)
-values ('user', '$2a$08$BfFaDAgceB.XhR46EEMoHeB0Z/0jantzTIxBIxelRNNuZGgZuF0um', 'Ivanov Ivan', 'user@mail.com'),
-       ('admin', '$2a$08$BfFaDAgceB.XhR46EEMoHeB0Z/0jantzTIxBIxelRNNuZGgZuF0um', 'Iashin Mickhail', 'admin@mail.com');
 
-INSERT INTO blog.authorities (user_id, authority)
-values ((select id from blog.users where username = 'user'), 'ROLE_USER'),
-       ((select id from blog.users where username = 'admin'), 'ROLE_ADMIN');
+INSERT INTO blog.authorities (authority)
+values ('ROLE_USER'),
+       ('ROLE_ADMIN'),
+       ('ROLE_SECURITY');
+
+INSERT INTO blog.users (username, password, full_name, email, authority_id)
+values ('user', '$2a$08$BfFaDAgceB.XhR46EEMoHeB0Z/0jantzTIxBIxelRNNuZGgZuF0um', 'Ivanov Ivan', 'user@mail.com',
+        (select id from blog.authorities where authority = 'ROLE_USER')),
+       ('admin', '$2a$08$BfFaDAgceB.XhR46EEMoHeB0Z/0jantzTIxBIxelRNNuZGgZuF0um', 'Iashin Mickhail', 'admin@mail.com',
+        (select id from blog.authorities where authority = 'ROLE_ADMIN')),
+       ('security', '$2a$08$BfFaDAgceB.XhR46EEMoHeB0Z/0jantzTIxBIxelRNNuZGgZuF0um', 'Iashin Mikhail', 'user@mail.com',
+        (select id from blog.authorities where authority = 'ROLE_SECURITY'));

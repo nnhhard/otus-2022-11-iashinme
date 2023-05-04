@@ -5,12 +5,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import ru.iashinme.blog.dto.PostDto;
-import ru.iashinme.blog.dto.PostRequestDto;
-import ru.iashinme.blog.dto.TechnologyDto;
-import ru.iashinme.blog.dto.UserSmallDto;
+import ru.iashinme.blog.dto.*;
 import ru.iashinme.blog.exception.ValidateException;
 import ru.iashinme.blog.mapper.PostMapper;
+import ru.iashinme.blog.model.Authority;
 import ru.iashinme.blog.model.Post;
 import ru.iashinme.blog.model.Technology;
 import ru.iashinme.blog.model.User;
@@ -50,12 +48,15 @@ public class PostServiceImplTest {
             .text(POST_ENTITY.getText())
             .technology(TechnologyDto.builder().id(-1L).name("name").build())
             .title(POST_ENTITY.getTitle())
-            .author(UserSmallDto.builder().id(-1L).email("email").fullName("fullname").build())
+            .author(UserDto.builder().id(-1L).email("email").fullName("fullname").build())
             .build();
 
-    private final static Long EXPECTED_POST_COUNT = 1L;
-
-    private static final User USER = User.builder().id(-1L).email("email").fullName("fullname").build();
+    private static final CustomUserDetails USER = CustomUserDetails.builder()
+            .id(-1L)
+            .email("email")
+            .fullName("fullname")
+            .authorities(List.of(new Authority(-1L, "ROLE_USER")))
+            .build();
 
     @Test
     @DisplayName("корректно выбрасывать исключение при проверки текста поста")
@@ -100,16 +101,6 @@ public class PostServiceImplTest {
 
         assertThat(actualPostDto)
                 .isEqualTo(POST_DTO);
-    }
-
-    @DisplayName("возвращать ожидаемое количество постов")
-    @Test
-    void shouldReturnExpectedPostCount() {
-        when(postRepository.count()).thenReturn(EXPECTED_POST_COUNT);
-        long actualCount = postService.count();
-
-        assertThat(actualCount)
-                .isEqualTo(EXPECTED_POST_COUNT);
     }
 
     @DisplayName("возвращать ожидаемый список постов")
@@ -225,7 +216,7 @@ public class PostServiceImplTest {
 
         when(postRepository.findById(postRequestDto.getId())).thenReturn(Optional.of(POST_ENTITY));
 
-        User otherUser = User.builder()
+        CustomUserDetails otherUser = CustomUserDetails.builder()
                 .id(-2L)
                 .build();
 

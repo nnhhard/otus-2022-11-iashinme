@@ -4,9 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.iashinme.blog.model.Authority;
-
-import java.util.Set;
 
 @Data
 @Builder
@@ -18,6 +15,6 @@ public class UserDto {
     private String username;
     private String fullName;
     private String email;
-    private Set<Authority> authorities;
+    private AuthorityDto authority;
     private boolean enabled;
 }
