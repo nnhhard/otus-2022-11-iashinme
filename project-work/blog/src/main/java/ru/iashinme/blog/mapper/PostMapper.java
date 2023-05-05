@@ -28,7 +28,7 @@ public class PostMapper {
                 .text(post.getText())
                 .technology(technologyMapper.entityToDto(post.getTechnology()))
                 .author(userMapper.entityToDto(post.getAuthor()))
-                .imageGuid(post.getImageGuid())
+                .imageId(post.getImageId())
                 .build();
     }
 }

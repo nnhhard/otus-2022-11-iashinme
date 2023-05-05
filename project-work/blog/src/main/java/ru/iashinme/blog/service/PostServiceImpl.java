@@ -115,8 +115,8 @@ public class PostServiceImpl implements PostService {
                 () -> new ValidateException("Post not found!")
         );
 
-        if(post.getImageGuid() != null) {
-            storageServiceProxy.deleteFile(post.getImageGuid());
+        if(post.getImageId() != null) {
+            storageServiceProxy.deleteFile(post.getImageId());
         }
 
         postRepository.deleteById(id);
@@ -124,13 +124,17 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public PostDto uploadImageInPost(Long id, MultipartFile file) {
+    public PostDto uploadImageInPost(Long id, MultipartFile file, CustomUserDetails user) {
         var post  = postRepository.findById(id).orElseThrow(
                 () -> new ValidateException("Post not found!")
         );
 
-        if(post.getImageGuid() != null) {
-            storageServiceProxy.deleteFile(post.getImageGuid());
+        if(!Objects.equals(post.getAuthor().getId(), user.getId())) {
+            throw new ValidateException("You are not the author of the post!");
+        }
+
+        if(post.getImageId() != null) {
+            storageServiceProxy.deleteFile(post.getImageId());
         }
 
         var responseFS = storageServiceProxy.uploadFile(file);
@@ -139,13 +143,13 @@ public class PostServiceImpl implements PostService {
             throw new ValidateException("Error for uploaded file!");
         }
 
-        post.setImageGuid(responseFS.getBody());
+        post.setImageId(responseFS.getBody());
         return postMapper.entityToDto(postRepository.save(post));
     }
 
     @Override
-    public ResponseEntity<byte[]> downloadImageInPost(String guid) {
-        return storageServiceProxy.downloadImage(guid);
+    public ResponseEntity<byte[]> downloadImageInPost(Long fileId) {
+        return storageServiceProxy.downloadImage(fileId);
     }
 
     private void validate(PostRequestDto post) {

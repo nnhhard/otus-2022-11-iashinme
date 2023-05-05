@@ -73,14 +73,14 @@ public class PostController {
     }
 
     @Operation(summary = "Upload image in post")
-    @PostMapping(value = "/post/{id}/image")
+    @PostMapping(value = "/post/{id}/image", consumes = "multipart/form-data")
     public PostDto uploadImageInPost(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
-        return postService.uploadImageInPost(id, file);
+        return postService.uploadImageInPost(id, file, ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()));
     }
 
     @Operation(summary = "Download image in post")
-    @GetMapping(value = "/post/image/{guid}")
-    public ResponseEntity<byte[]> downloadImageInPost(@PathVariable String guid) {
-        return postService.downloadImageInPost(guid);
+    @GetMapping(value = "/post/image/{fileId}")
+    public ResponseEntity<byte[]> downloadImageInPost(@PathVariable Long fileId) {
+        return postService.downloadImageInPost(fileId);
     }
 }

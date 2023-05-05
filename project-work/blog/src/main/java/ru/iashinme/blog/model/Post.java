@@ -26,9 +26,8 @@ public class Post {
     @Column(name = "text", nullable = false)
     private String text;
 
-    @Column(name = "image_guid")
-    private String imageGuid;
-
+    @Column(name = "image_id")
+    private Long imageId;
 
     @ManyToOne(targetEntity = User.class, cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     private User author;

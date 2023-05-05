@@ -19,8 +19,6 @@ public class FileInfo {
 
     private String name;
 
-    @Column(name = "guid", unique = true)
-    private String guid;
     private String type;
 
     @Column(name = "data")

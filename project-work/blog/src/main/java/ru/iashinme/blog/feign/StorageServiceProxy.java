@@ -9,11 +9,11 @@ import org.springframework.web.multipart.MultipartFile;
 public interface StorageServiceProxy {
 
     @PostMapping(value = "/file", consumes = "multipart/form-data")
-    ResponseEntity<String> uploadFile(@RequestPart("file") MultipartFile file);
+    ResponseEntity<Long> uploadFile(@RequestPart("file") MultipartFile file);
 
-    @GetMapping("/file/{guid}")
-    ResponseEntity<byte[]> downloadImage(@PathVariable String guid);
+    @GetMapping("/file/{id}")
+    ResponseEntity<byte[]> downloadImage(@PathVariable Long id);
 
-    @DeleteMapping("/file/{guid}")
-    ResponseEntity<String> deleteFile(@PathVariable String guid);
+    @DeleteMapping("/file/{id}")
+    ResponseEntity<String> deleteFile(@PathVariable Long id);
 }

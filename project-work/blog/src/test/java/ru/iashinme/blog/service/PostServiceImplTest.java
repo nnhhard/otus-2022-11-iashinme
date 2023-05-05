@@ -19,7 +19,6 @@ import ru.iashinme.blog.repository.PostRepository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -49,7 +48,7 @@ public class PostServiceImplTest {
             .technology(Technology.builder().id(-1L).name("name").build() )
             .title("title")
             .text("text")
-            .imageGuid("123")
+            .imageId(-3L)
             .author(User.builder().id(-1L).fullName("fullName").build())
             .build();
     private final static PostDto POST_DTO = PostDto.builder()
@@ -129,7 +128,7 @@ public class PostServiceImplTest {
         postService.delete(-1L);
 
         verify(postRepository, times(1)).deleteById(-1L);
-        verify(storageServiceProxy, times(1)).deleteFile(POST_ENTITY.getImageGuid());
+        verify(storageServiceProxy, times(1)).deleteFile(POST_ENTITY.getImageId());
     }
 
     @Test
@@ -238,25 +237,24 @@ public class PostServiceImplTest {
     @Test
     @DisplayName("корректно выкидывать исключение при попытки изменить не свой пост")
     public void shouldHaveCorrectReturnExceptionByUpdatePost1() {
-        String guid = UUID.randomUUID().toString();
         when(postRepository.findById(-1L)).thenReturn(Optional.of(POST_ENTITY));
         when(storageServiceProxy.uploadFile(any())).thenReturn(
-                ResponseEntity.ok().body(guid)
+                ResponseEntity.ok().body(-3L)
         );
 
         Post postWithImageGuid = Post.builder()
                 .id(-1L)
-                .imageGuid(guid)
+                .imageId(-3L)
                 .build();
         PostDto postDtoWithImageGuid = PostDto.builder()
-                .id(-1L).imageGuid(guid).build();
+                .id(-1L).imageId(-3L).build();
 
         when(postRepository.save(any())).thenReturn(postWithImageGuid);
         when(postMapper.entityToDto(postWithImageGuid)).thenReturn(postDtoWithImageGuid);
 
-        var actualGuid = postService.uploadImageInPost(-1L, mock(MultipartFile.class));
+        var actualGuid = postService.uploadImageInPost(-1L, mock(MultipartFile.class), USER);
 
-        assertThat(actualGuid.getImageGuid()).isEqualTo(guid);
+        assertThat(actualGuid.getImageId()).isEqualTo(-3L);
 
     }
 }

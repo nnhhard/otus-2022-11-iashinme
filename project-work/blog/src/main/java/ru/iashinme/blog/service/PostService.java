@@ -2,7 +2,6 @@ package ru.iashinme.blog.service;
 
 import lombok.NonNull;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import ru.iashinme.blog.dto.CustomUserDetails;
 import ru.iashinme.blog.dto.PostDto;
@@ -27,8 +26,7 @@ public interface PostService {
 
     void delete(Long id);
 
-    PostDto uploadImageInPost(Long id, MultipartFile file);
+    PostDto uploadImageInPost(Long id, MultipartFile file, CustomUserDetails user);
 
-    @Transactional(readOnly = true)
-    ResponseEntity<byte[]> downloadImageInPost(String guid);
+    ResponseEntity<byte[]> downloadImageInPost(Long fileId);
 }

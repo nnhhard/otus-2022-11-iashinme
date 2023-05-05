@@ -29,32 +29,32 @@ public class StorageServiceImplTest {
     @Test
     @DisplayName("корректно сохранять файл в БД")
     public void shouldSavedFileInBD() {
-        FileInfo fileInfo = FileInfo.builder().id(-1L).guid("guid").build();
+        FileInfo fileInfo = FileInfo.builder().id(-1L).build();
         when(fileInfoRepository.save(any())).thenReturn(fileInfo);
 
-        ResponseEntity<String> guid = storageServiceImpl.uploadFile(mock(MultipartFile.class));
+        ResponseEntity<Long> guid = storageServiceImpl.uploadFile(mock(MultipartFile.class));
 
-        assertThat(guid.getBody()).isEqualTo(fileInfo.getGuid());
+        assertThat(guid.getBody()).isEqualTo(fileInfo.getId());
     }
 
     @Test
     @DisplayName("корректно удалять файл из БД")
     public void shouldDeletedFileFromBD() {
-        String guid = "guid";
+        var fileId = -1L;
 
-        storageServiceImpl.deleteFile(guid);
-        verify(fileInfoRepository, times(1)).deleteByGuid(guid);
+        storageServiceImpl.deleteFile(fileId);
+        verify(fileInfoRepository, times(1)).deleteById(fileId);
     }
 
     @Test
     @DisplayName("корректно загружать файл из БД")
     public void shouldDownloadFileFromBD() {
         byte[] fileData = "123".getBytes();
-        FileInfo fileInfo = FileInfo.builder().id(-1L).guid("guid").type("image/png").dataFile(fileData).build();
+        FileInfo fileInfo = FileInfo.builder().id(-1L).type("image/png").dataFile(fileData).build();
 
-        when(fileInfoRepository.findByGuid(fileInfo.getGuid())).thenReturn(Optional.of(fileInfo));
+        when(fileInfoRepository.findById(fileInfo.getId())).thenReturn(Optional.of(fileInfo));
 
-        var response = storageServiceImpl.downloadFile(fileInfo.getGuid());
+        var response = storageServiceImpl.downloadFile(fileInfo.getId());
 
         assertThat(response.getBody()).isEqualTo(fileData);
     }

@@ -16,5 +16,5 @@ public class PostDto {
     private String text;
     private TechnologyDto technology;
     private UserDto author;
-    private String imageGuid;
+    private Long imageId;
 }
