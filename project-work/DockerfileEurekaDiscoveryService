@@ -1,0 +1,4 @@
+FROM openjdk:11-jre-slim
+ADD  /eureka-discovery-server/target/eureka-discovery-server.jar eureka.jar
+EXPOSE 8001
+ENTRYPOINT ["java", "-jar", "eureka.jar"]
