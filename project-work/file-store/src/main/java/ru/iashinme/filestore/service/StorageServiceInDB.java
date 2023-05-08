@@ -1,6 +1,7 @@
 package ru.iashinme.filestore.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -8,21 +9,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import ru.iashinme.filestore.exception.ValidateException;
-import ru.iashinme.filestore.model.FileInfo;
-import ru.iashinme.filestore.respository.FileInfoRepository;
+import ru.iashinme.filestore.model.File;
+import ru.iashinme.filestore.respository.FileRepository;
 
 @Service
+@Profile("default")
 @RequiredArgsConstructor
-public class StorageServiceImpl implements StorageService {
+public class StorageServiceInDB implements StorageService {
 
-    private final FileInfoRepository fileInfoRepository;
+    private final FileRepository fileRepository;
 
     @Override
     @Transactional
     public ResponseEntity<Long> uploadFile(MultipartFile file) {
         try {
 
-            var savedFile = fileInfoRepository.save(FileInfo.builder()
+            var savedFile = fileRepository.save(File.builder()
                     .name(file.getOriginalFilename())
                     .type(file.getContentType())
                     .dataFile(file.getBytes()).build());
@@ -37,7 +39,7 @@ public class StorageServiceImpl implements StorageService {
     @Transactional(readOnly = true)
     public ResponseEntity<byte[]> downloadFile(Long id) {
         try {
-            FileInfo fileData = fileInfoRepository.findById(id).orElseThrow(
+            File fileData = fileRepository.findById(id).orElseThrow(
                     () -> new ValidateException("File not found!")
             );
 
@@ -52,7 +54,7 @@ public class StorageServiceImpl implements StorageService {
     @Override
     @Transactional
     public ResponseEntity<String> deleteFile(Long id) {
-        fileInfoRepository.deleteById(id);
-        return ResponseEntity.ok().body("file wiht id = " + id + " deleted!");
+        fileRepository.deleteById(id);
+        return ResponseEntity.ok().body("file deleted!");
     }
 }

@@ -6,9 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.multipart.MultipartFile;
-import ru.iashinme.filestore.model.FileInfo;
-import ru.iashinme.filestore.respository.FileInfoRepository;
+import ru.iashinme.filestore.model.File;
+import ru.iashinme.filestore.respository.FileRepository;
 
 import java.util.Optional;
 
@@ -16,25 +17,26 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest(classes = {StorageServiceImpl.class})
+@SpringBootTest(classes = {StorageServiceInDB.class})
+@ActiveProfiles("default")
 @DisplayName("Сервис по работе с файлами должен ")
-public class StorageServiceImplTest {
+public class StorageServiceInDBTest {
 
     @Autowired
-    private StorageServiceImpl storageServiceImpl;
+    private StorageServiceInDB storageServiceInDB;
 
     @MockBean
-    private FileInfoRepository fileInfoRepository;
+    private FileRepository fileRepository;
 
     @Test
     @DisplayName("корректно сохранять файл в БД")
     public void shouldSavedFileInBD() {
-        FileInfo fileInfo = FileInfo.builder().id(-1L).build();
-        when(fileInfoRepository.save(any())).thenReturn(fileInfo);
+        File file = File.builder().id(-1L).build();
+        when(fileRepository.save(any())).thenReturn(file);
 
-        ResponseEntity<Long> guid = storageServiceImpl.uploadFile(mock(MultipartFile.class));
+        ResponseEntity<Long> guid = storageServiceInDB.uploadFile(mock(MultipartFile.class));
 
-        assertThat(guid.getBody()).isEqualTo(fileInfo.getId());
+        assertThat(guid.getBody()).isEqualTo(file.getId());
     }
 
     @Test
@@ -42,19 +44,19 @@ public class StorageServiceImplTest {
     public void shouldDeletedFileFromBD() {
         var fileId = -1L;
 
-        storageServiceImpl.deleteFile(fileId);
-        verify(fileInfoRepository, times(1)).deleteById(fileId);
+        storageServiceInDB.deleteFile(fileId);
+        verify(fileRepository, times(1)).deleteById(fileId);
     }
 
     @Test
     @DisplayName("корректно загружать файл из БД")
     public void shouldDownloadFileFromBD() {
         byte[] fileData = "123".getBytes();
-        FileInfo fileInfo = FileInfo.builder().id(-1L).type("image/png").dataFile(fileData).build();
+        File file = File.builder().id(-1L).type("image/png").dataFile(fileData).build();
 
-        when(fileInfoRepository.findById(fileInfo.getId())).thenReturn(Optional.of(fileInfo));
+        when(fileRepository.findById(file.getId())).thenReturn(Optional.of(file));
 
-        var response = storageServiceImpl.downloadFile(fileInfo.getId());
+        var response = storageServiceInDB.downloadFile(file.getId());
 
         assertThat(response.getBody()).isEqualTo(fileData);
     }

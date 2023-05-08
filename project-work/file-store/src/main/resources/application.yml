@@ -37,6 +37,9 @@ spring:
     enabled: true
     validate-on-migrate: true
 
+  profiles:
+    active: file-system
+
 management:
   endpoints:
     enabled-by-default: false

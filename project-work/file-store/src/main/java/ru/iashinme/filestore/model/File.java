@@ -5,13 +5,13 @@ import lombok.*;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "file_info", schema = "fs")
+@Table(name = "file", schema = "fs")
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class FileInfo {
+public class File {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,6 +21,6 @@ public class FileInfo {
 
     private String type;
 
-    @Column(name = "file_path")
-    private String filePath;
+    @Column(name = "data")
+    private byte[] dataFile;
 }
