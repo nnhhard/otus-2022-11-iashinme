@@ -1,0 +1,53 @@
+version: '3'
+services:
+  blog:
+    build:
+      context: .
+      dockerfile: DockerfileBlog
+    privileged: true
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8001/eureka
+    networks:
+      - nw
+  eureka:
+    build:
+      context: .
+      dockerfile: DockerfileEurekaDiscoveryService
+    ports:
+      - "8001:8001"
+    networks:
+      - nw
+  file-store:
+    build:
+      context: .
+      dockerfile: DockerfileFileStore
+    ports:
+      - "8081:8081"
+    volumes:
+      - /c/tmp/:/etc/fs/
+    environment:
+      - SPRING_PROFILES_ACTIVE=file-system
+      - FILESTORAGE_PATH=/etc/fs/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8001/eureka
+    networks:
+      - nw
+  postgres:
+    image: "postgres:13.3"
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=db
+    networks:
+      - nw
+networks:
+  nw:

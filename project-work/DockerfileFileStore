@@ -1,0 +1,4 @@
+FROM openjdk:11-jre-slim
+ADD  /file-store/target/file-store.jar fs.jar
+EXPOSE 8081
+ENTRYPOINT ["java", "-jar", "fs.jar"]
